@@ -4,3 +4,4 @@ captum
 matplotlib
 seaborn
 torch
+psycopg2-binary
