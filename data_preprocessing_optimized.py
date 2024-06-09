@@ -142,7 +142,8 @@ dataset_detail = dataset_detail[dataset_detail.icustay_id.isin(X['icustay_id'].u
 
 # Resampling
 if TIME_SAMPLING:
-    X = X.set_index('charttime').groupby('icustay_id').resample(SAMPLING_INTERVAL).mean().reset_index()
+    X = X.set_index('charttime').groupby('icustay_id').resample(SAMPLING_INTERVAL).mean()
+    X = X.reset_index(drop=True)
 
 X['aki_stage'] = X.groupby('icustay_id')['aki_stage'].fillna(method='ffill', limit=RESAMPLE_LIMIT).fillna(0)
 X = X.fillna(FILL_VALUE)
