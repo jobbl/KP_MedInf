@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from xgboost import XGBClassifier
 
@@ -13,11 +13,13 @@ loaded_model.load_model('models/simple_xgboost_model.model')
 
 @app.route('/')
 def home():
+    return render_template('prediction_form.html')
     return "AKI Prediction API"
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json  # Expecting a JSON payload
+    print(data)
     features = data['features']  # Your JSON payload should have a 'features' key
     values = list(features.values())
     prediction = loaded_model.predict([values])
