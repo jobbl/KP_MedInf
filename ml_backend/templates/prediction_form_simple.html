@@ -5,10 +5,10 @@
 <h1>AKI Prediction API</h1>
 
 <form id="myForm">
-  {% for feature in train_features %}
-  <label for="{{ feature }}">{{ feature }}</label><br>
-  <input type="text" id="{{ feature }}" name="{{ feature }}"><br>
-  {% endfor %}
+  <label for="creatinine_mean">Creatinine Mean:</label><br>
+  <input type="text" id="creatinine_mean" name="creatinine_mean"><br>
+  <label for="uo_rt_6hr">UO RT 6HR:</label><br>
+  <input type="text" id="uo_rt_6hr" name="uo_rt_6hr"><br>
   <input type="submit" value="Submit">
 </form>
 
@@ -19,10 +19,10 @@
 document.getElementById('myForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  var data = {features: {}};
-  {% for feature in train_features %}
-  data.features["{{ feature }}"] = parseFloat(document.getElementById('{{ feature }}').value);
-  {% endfor %}
+  var creatinine_mean = parseFloat(document.getElementById('creatinine_mean').value);
+  var uo_rt_6hr = parseFloat(document.getElementById('uo_rt_6hr').value);
+
+  var data = {features: {creatinine_mean: creatinine_mean, uo_rt_6hr: uo_rt_6hr}};
 
   fetch('/predict', {
     method: 'POST',
