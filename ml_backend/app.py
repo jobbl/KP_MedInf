@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import joblib
+from xgboost import XGBClassifier
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow requests from your frontend
 
-# Load the model
-model = joblib.load('path/to/your/model.pkl')
+
+# load the model and predict    
+loaded_model = XGBClassifier()
+loaded_model.load_model('models/simple_xgboost_model.model')
+
 
 @app.route('/')
 def home():
@@ -16,12 +19,12 @@ def home():
 def predict():
     data = request.json  # Expecting a JSON payload
     features = data['features']  # Your JSON payload should have a 'features' key
-    
-    # Perform prediction
-    prediction = model.predict([features])
-    probability = model.predict_proba([features])  # Assuming your model has `predict_proba`
+    values = list(features.values())
+    prediction = loaded_model.predict([values])
+    prediction = float(prediction[0])
 
-    return jsonify({'prediction': prediction[0], 'probability': probability[0][1]})
+
+    return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
     app.run(debug=True)
