@@ -1,0 +1,41 @@
+/* src/components/PatientDetail.css */
+
+.patient-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    position: relative;
+  }
+  
+  .back-button {
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    bottom: 1rem;
+  }
+  
+  .patient-info, .aki-section {
+    background-color: #f0f0f0;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .prognosis-overview, .comments-section {
+    margin-top: 1rem;
+  }
+  
+  .prognosis-row {
+    display: flex;
+    justify-content: space-between;
+    background-color: #dde7ed;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .comments-section {
+    margin-top: 1rem;
+  }
+  

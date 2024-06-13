@@ -1,0 +1,49 @@
+/* src/components/Register.css */
+
+body, html, #root {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dde7ed; /* Light background color */
+  }
+  
+  .register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 6rem;
+    background-color: #FFFFFF; /* White background for the form */
+    border-radius: 8px; /* Optional: rounded corners */
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .register-form .MuiTextField-root {
+    width: 100%;
+  }
+  
+  .register-form .MuiTypography-h4 {
+    text-align: left;
+    width: 100%;
+    color: #000000; /* Black for headers */
+  }
+  
+  .register-form .MuiButton-containedPrimary {
+    background-color: #5e9bb5; /* Primary button color */
+    color: #FFFFFF;
+  }
+  
+  .register-form .MuiButton-containedPrimary:hover {
+    background-color: #497588; /* Button hover color */
+  }
+  
