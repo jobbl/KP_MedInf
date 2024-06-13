@@ -1,0 +1,82 @@
+/* src/components/Login.css */
+
+body, html, #root {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dde7ed; /* Light background color */
+  }
+  
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 6rem;
+    background-color: #FFFFFF; /* White background for the form */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional: slight shadow for better visibility */
+    border-radius: 8px; /* Optional: rounded corners */
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .login-form .MuiTextField-root {
+    width: 100%;
+  }
+  
+  .login-form .MuiTypography-h4 {
+    text-align: left;
+    width: 100%;
+    color: #000000; /* Black for headers */
+  }
+  
+  .error-message {
+    color: #FF6347; /* Tomato color for error messages */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .error-message svg {
+    font-size: 1.5rem;
+  }
+  
+  .login-form .MuiButton-containedPrimary {
+    background-color: #5e9bb5; /* Primary button color */
+    color: #FFFFFF;
+  }
+  
+  .login-form .MuiButton-containedPrimary:hover {
+    background-color: #497588; /* Button hover color */
+  }
+  
+  .login-form .MuiTypography-body2 {
+    color: #000000; /* Additional text color */
+  }
+  
+  .login-form .MuiTypography-body2 span {
+    color: #497588; /* Link color */
+    cursor: pointer;
+  }
+  
+  .dialog-content {
+    background-color: #f0f0f0; /* Light background color for dialog */
+  }
+  
+  .dialog-title {
+    color: #681753; /* Dialog title color */
+  }
+  
+  .dialog-actions .MuiButton-textPrimary {
+    color: #811b8a; /* Dialog close button color */
+  }
+  
