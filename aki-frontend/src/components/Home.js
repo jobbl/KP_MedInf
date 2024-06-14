@@ -1,5 +1,3 @@
-// src/components/Home.js
-
 import React from 'react';
 import PatientTable from './PatientTable';
 import Sidebar from './Sidebar';
@@ -7,7 +5,7 @@ import { Container, Typography, Box } from '@mui/material';
 import './../App.css';
 
 const Home = ({ user }) => {
-  const csvFile = '/patients.csv'; // Path to your CSV file
+  const csvFile = '/patients.csv'; 
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#FFFFFF' }}>
