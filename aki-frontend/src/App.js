@@ -1,5 +1,3 @@
-// src/App.js
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
@@ -16,7 +14,7 @@ function App() {
   ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
-  const csvFile = '/patients.csv'; // Path to your CSV file
+  const csvFile = '/patients.csv'; 
 
   const handleLogin = (username, password) => {
     const user = users.find(user => user.username === username && user.password === password);

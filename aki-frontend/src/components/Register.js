@@ -1,5 +1,3 @@
-// src/components/Register.js
-
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, Box } from '@mui/material';
 import './Register.css';
@@ -12,7 +10,7 @@ const Register = ({ onRegister, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onRegister(name, username, password);
-    onClose();  // Close the dialog after successful registration
+    onClose();  
   };
 
   return (

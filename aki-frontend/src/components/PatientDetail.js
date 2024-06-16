@@ -1,5 +1,3 @@
-// src/components/PatientDetail.js
-
 import React, { useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, Typography, Button, IconButton, Tooltip, Switch, Grid } from '@mui/material';
