@@ -1,12 +1,10 @@
-/* src/components/Register.css */
-
 body, html, #root {
     height: 100%;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #dde7ed; /* Light background color */
+    background-color: #dde7ed; 
   }
   
   .register-container {
@@ -17,8 +15,8 @@ body, html, #root {
     width: 100%;
     max-width: 400px;
     padding: 6rem;
-    background-color: #FFFFFF; /* White background for the form */
-    border-radius: 8px; /* Optional: rounded corners */
+    background-color: #FFFFFF; 
+    border-radius: 8px; 
   }
   
   .register-form {
@@ -35,15 +33,15 @@ body, html, #root {
   .register-form .MuiTypography-h4 {
     text-align: left;
     width: 100%;
-    color: #000000; /* Black for headers */
+    color: #000000; 
   }
   
   .register-form .MuiButton-containedPrimary {
-    background-color: #5e9bb5; /* Primary button color */
+    background-color: #5e9bb5; 
     color: #FFFFFF;
   }
   
   .register-form .MuiButton-containedPrimary:hover {
-    background-color: #497588; /* Button hover color */
+    background-color: #497588; 
   }
   

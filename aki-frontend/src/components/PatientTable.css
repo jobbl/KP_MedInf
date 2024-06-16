@@ -1,10 +1,8 @@
-/* src/components/PatientTable.css */
-
 .table-container {
     margin-top: 2rem;
-    background-color: #FFFFFF; /* Set the table background color to white */
-    padding: 1rem; /* Optional: Add padding for better spacing */
-    border-radius: 8px; /* Optional: Rounded corners */
+    background-color: #FFFFFF; 
+    padding: 1rem;
+    border-radius: 8px; 
   }
   
   .table-header {
