@@ -2,19 +2,21 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from xgboost import XGBClassifier
 import numpy as np
+import os
 
 app = Flask(__name__)
+model_path = "models/model_full"
 CORS(app)  # Enable CORS to allow requests from your frontend
 
 
 # load the model and predict    
 loaded_model = XGBClassifier()
-loaded_model.load_model('models/simple_xgboost_model.model')
+loaded_model.load_model(os.path.join(model_path,'simple_xgboost_model.model'))
 
 @app.route('/')
 def home():
     # load train feature names from models/train_feature_names.npy
-    train_features = np.load('models/train_feature_names.npy', allow_pickle=True)
+    train_features = np.load(os.path.join(model_path,'train_feature_names.npy'), allow_pickle=True)
     return render_template('prediction_form.html', train_features=train_features)
 
 @app.route('/predict', methods=['POST'])
