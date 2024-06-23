@@ -1,5 +1,0 @@
-data/*
-load_modules.sh
-ml_backend/models
-aki-frontend/node_modules
-notebooks/*
