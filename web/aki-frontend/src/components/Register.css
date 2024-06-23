@@ -1,0 +1,47 @@
+body, html, #root {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dde7ed; 
+  }
+  
+  .register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 6rem;
+    background-color: #FFFFFF; 
+    border-radius: 8px; 
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .register-form .MuiTextField-root {
+    width: 100%;
+  }
+  
+  .register-form .MuiTypography-h4 {
+    text-align: left;
+    width: 100%;
+    color: #000000; 
+  }
+  
+  .register-form .MuiButton-containedPrimary {
+    background-color: #5e9bb5; 
+    color: #FFFFFF;
+  }
+  
+  .register-form .MuiButton-containedPrimary:hover {
+    background-color: #497588; 
+  }
+  
