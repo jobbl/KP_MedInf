@@ -1,0 +1,10 @@
+Vorname,Nachname,Geschlecht,Geburtsdatum,Aufnahmedatum,ID-Nr,AKI-Score,Diagnose,Serumkreatinin,Urinmenge
+Klaus, Wagner, m, 30.09.1964, 23.04.2024, 57331, 81%, Sepsis, 
+Ingrid, Fischer, w, 14.02.1953, 20.04.2024, 40028, 77%, Hepatorenales Syndrom
+Renate, Becker, w, 05.12.1949, 12.04.2024, 95644, 62%, Akute Pyelonephritis
+Helena, Schmidt, w, 08.05.1972, 13.04.2024, 90847, 46%, Akute Herzinsuffizienz, 1.5 mg/dL, 0.4
+Dieter, Schultz, m, 17.06.1970, 29.03.2024, 52026, 43%, Lungenembolie
+Jürgen, Braun, m, 09.11.1964, 20.04.2024, 63894, 52%, Hyperglykämie
+Lea, Hoffmann, w, 03.01.1997, 25.04.2024, 32271, 36%, Pneumonie
+Sabine, Krause, w, 27.09.1981, 13.04.2024, 77812, 30%, Akute Bronchitis
+Lukas, Weber, m, 21.10.1989, 16.04.2024, 60347, 23%, Appendizitis

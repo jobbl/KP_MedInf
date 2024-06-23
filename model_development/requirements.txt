@@ -1,0 +1,9 @@
+scikit-learn
+pandas
+captum
+matplotlib
+seaborn
+torch
+psycopg2-binary
+flask
+xgboost
