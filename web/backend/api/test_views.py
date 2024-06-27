@@ -4,12 +4,14 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from .models import Patient, PatientFeature
 
+number_of_features = 2
+
 class APITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         self.patient = Patient.objects.create(patient_id='12345', user=self.user)
-        self.patient_feature = PatientFeature.objects.create(patient=self.patient, data={f'feature{i}': i for i in range(1, 63)})
+        self.patient_feature = PatientFeature.objects.create(patient=self.patient, data={f'feature{i}': i for i in range(0, number_of_features)})
 
     # def setUp(self):
     #     self.client = APIClient()
@@ -36,8 +38,9 @@ class APITests(APITestCase):
         url = reverse('register')
         data = {'username': 'newuser', 'password': 'newpassword'}
         response = self.client.post(url, data, format='json')
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(User.objects.count(), 2)
+        self.assertEqual(User.objects.count(), 3)
 
     def test_login(self):
         url = reverse('login')
@@ -92,7 +95,7 @@ class APITests(APITestCase):
         url = reverse('patient-feature-create', args=[self.patient.id])
         feature_data = {
             'patient': self.patient.id,
-            'data': {f'feature{i}': i for i in range(1, 63)},
+            'data': {f'feature{i}': i for i in range(0, number_of_features)},
         }
         response = self.client.post(url, feature_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

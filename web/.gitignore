@@ -3,3 +3,4 @@ ml_backend_flask/models
 aki-frontend/node_modules
 venv
 scikit-learn
+backend/db.sqlite3
