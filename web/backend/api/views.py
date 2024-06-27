@@ -13,12 +13,25 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 model_path = "models/model_full"
 loaded_model = XGBClassifier()
-loaded_model.load_model(os.path.join(model_path, 'simple_xgboost_model.model'))
+try:
+    loaded_model.load_model(os.path.join(model_path, 'simple_xgboost_model.model'))
+except:
+    print("Model not found, using dummy model")
+    # initialize for 2 parameters
+    loaded_model.fit(np.array([[0, 0]]), np.array([0]))
+
+MIN_USERNAME_LENGTH = 4
+MIN_PASSWORD_LENGTH = 4
 
 class RegisterView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+
+        # Enforce minimum length requirements
+        if len(username) < MIN_USERNAME_LENGTH or len(password) < MIN_PASSWORD_LENGTH:
+            return Response({"error": "Username or password does not meet the minimum length requirement."}, status=400)
+
         user = User.objects.create_user(username=username, password=password)
         return Response({"user": UserSerializer(user).data})
 
@@ -36,9 +49,11 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        print(request.data)
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
+        print(user)
         if user:
             login(request, user)
             refresh = RefreshToken.for_user(user)
