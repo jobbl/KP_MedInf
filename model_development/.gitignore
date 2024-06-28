@@ -1,3 +1,3 @@
 data/*
 load_modules.sh
-notebooks/*
+notebooks/data
