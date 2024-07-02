@@ -1,5 +1,5 @@
-ml_backend/models
-ml_backend_flask/models
+backend/models
+backend/venv
 aki-frontend/node_modules
 venv
 scikit-learn
