@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login_new';
-import Home from './components/Home';
+import Home from './components/Home_new';
 import PatientDetail from './components/PatientDetail';
 import { PatientProvider } from './PatientContext';
 import Sidebar from './components/Sidebar';

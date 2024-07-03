@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PatientContext } from '../PatientContext';
 import './PatientTable.css';
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Typography, IconButton, Tooltip, TablePagination } from '@mui/material';
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Typography, IconButton, Tooltip } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,7 +23,7 @@ const PatientTable = ({ searchQuery }) => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('AKI-Score');
   const [page, setPage] = useState(0);
-  const rowsPerPage = 6;
+  const rowsPerPage = 5;
   const navigate = useNavigate();
 
   const handleRequestSort = (property) => {
@@ -148,13 +148,6 @@ const PatientTable = ({ searchQuery }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component="div"
-        count={filteredPatients.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-      />
     </Container>
   );
 };
