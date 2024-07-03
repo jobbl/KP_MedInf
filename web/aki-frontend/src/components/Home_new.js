@@ -84,7 +84,7 @@ function Home({ user, token, onLogout }) {
               <Button onClick={handleFileUpload}>Hochladen</Button>
             </Box>
           </Modal>
-          <Button onClick={onLogout}>Logout</Button>
+          
         </Box>
       </Container>
     </div>
