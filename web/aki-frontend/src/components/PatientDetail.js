@@ -12,8 +12,13 @@ const PatientDetail = ({ user }) => {
   const { id } = useParams();
   const patients = useContext(PatientContext);
   const navigate = useNavigate();
-
-  const patient = patients.find(patient => patient['ID-Nr'] === id);
+  console.log(patients);
+  console.log(id);
+  const patient = patients.find(patient => patient['id_nr'] == id);
+  // const patient = patients.find(patient => {
+  //   console.log(`Comparing patient ID-Nr: ${patient['id_nr']} with ID: ${id}`);
+  //   return patient['id-nr'] == id;
+  // });
 
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
@@ -33,10 +38,10 @@ const PatientDetail = ({ user }) => {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4">{patient.Vorname} {patient.Nachname}</Typography>
+              <Typography variant="h4">{patient.vorname} {patient.nachname}</Typography>
               <Box>
-                <Typography variant="body1">{patient.Geschlecht}</Typography>
-                <Typography variant="body1">ID-Nr: {patient['ID-Nr']}</Typography>
+                <Typography variant="body1">{patient.geschlecht}</Typography>
+                <Typography variant="body1">ID-Nr: {patient['id-nr']}</Typography>
               </Box>
               <Box>
                 <IconButton><NotificationsIcon /></IconButton>
@@ -46,9 +51,9 @@ const PatientDetail = ({ user }) => {
           </Grid>
           <Grid item xs={12}>
             <Box className="patient-info">
-              <Typography variant="body1">Geburtsdatum: {patient.Geburtsdatum}</Typography>
-              <Typography variant="body1">Aufnahmedatum: {patient.Aufnahmedatum}</Typography>
-              <Typography variant="body1">Diagnose: {patient.Diagnose}</Typography>
+              <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
+              <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
+              <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
               <Button variant="contained">Laborwerte</Button>
             </Box>
           </Grid>
