@@ -14,6 +14,8 @@ from rest_framework.parsers import  MultiPartParser
 from rest_framework import status
 import csv
 from io import StringIO
+from datetime import datetime
+from django.db import IntegrityError
 
 model_path = "models/model_full"
 loaded_model = XGBClassifier()
@@ -120,20 +122,31 @@ class PatientCSVUploadView(APIView):
         try:
             decoded_file = StringIO(file_obj.read().decode('utf-8'))
             reader = csv.DictReader(decoded_file)
+            patients_created = 0
             for row in reader:
-                Patient.objects.create(
-                    user=user,  
-                    nachname=row['Nachname'],
-                    vorname=row['Vorname'],
-                    geschlecht=row['Geschlecht'],
-                    geburtsdatum=row['Geburtsdatum'],
-                    aufnahmedatum=row['Aufnahmedatum'],
-                    id_nr=row['ID-Nr'],
-                    aki_score=row['AKI-Score'],
-                    diagnose=row['Diagnose']
-                )
-            return Response({"success": "Patients added successfully."}, status=201)
+                try:
+                    Patient.objects.create(
+                        user=user,
+                        patient_id=row['ID-Nr'],  # Make sure this column exists in your CSV
+                        nachname=row['Nachname'],
+                        vorname=row['Vorname'],
+                        geschlecht=row['Geschlecht'],
+                        geburtsdatum=datetime.strptime(row['Geburtsdatum'], '%Y-%m-%d').date(),
+                        aufnahmedatum=datetime.strptime(row['Aufnahmedatum'], '%Y-%m-%d').date(),
+                        id_nr=row['ID-Nr'],
+                        aki_score=int(row['AKI-Score']),
+                        diagnose=row['Diagnose']
+                    )
+                    patients_created += 1
+                except IntegrityError as e:
+                    if 'unique constraint' in str(e).lower():
+                        return Response({"error": f"Patient with ID-Nr {row['ID-Nr']} already exists."}, status=400)
+                    else:
+                        raise
+                except ValueError as e:
+                    return Response({"error": f"Invalid data format: {str(e)}"}, status=400)
+            return Response({"success": f"{patients_created} patients added successfully."}, status=201)
         except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
 
 
