@@ -17,8 +17,6 @@ const Login = ({ onLogin, onRegister }) => {
     e.preventDefault();
     try {
       const response = await loginUser(username, password);
-      // log response
-      console.log(response);
       onLogin(response.data.user, response.data.token);
       navigate('/home');
     } catch (error) {
