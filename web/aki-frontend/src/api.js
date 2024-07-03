@@ -44,3 +44,16 @@ export const predictPatient = (patientId, token) => {
     },
   });
 };
+
+// Upload patients from a CSV file
+export const uploadPatients = (file, token) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return axios.post(`${API_URL}/upload_patients/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
