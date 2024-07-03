@@ -27,7 +27,8 @@ function App() {
   };
 
   return (
-    <PatientProvider csvFile={csvFile}>
+    // <PatientProvider csvFile={csvFile}>
+    <PatientProvider token={token}>
       <Router>
         <Routes>
           <Route path="/login" element={<Login onLogin={handleLogin} />} />

@@ -20,6 +20,7 @@ const CustomTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
 
 const PatientTable = ({ searchQuery }) => {
   const patients = useContext(PatientContext);
+  console.log(patients);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('AKI-Score');
   const [page, setPage] = useState(0);
@@ -43,8 +44,8 @@ const PatientTable = ({ searchQuery }) => {
   };
 
   const filteredPatients = patients.filter(patient =>
-    patient.Nachname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.Vorname.toLowerCase().includes(searchQuery.toLowerCase())
+    patient.nachname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    patient.vorname.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortedPatients = [...filteredPatients].sort((a, b) => sortComparator(a, b, orderBy));
@@ -124,15 +125,15 @@ const PatientTable = ({ searchQuery }) => {
           </TableHead>
           <TableBody>
             {sortedPatients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((patient, index) => (
-              <TableRow key={index} className="patient-row" onClick={() => handleRowClick(patient['ID-Nr'])} style={{ cursor: 'pointer' }}>
-                <TableCell className="table-cell">{patient.Nachname}</TableCell>
-                <TableCell className="table-cell">{patient.Vorname}</TableCell>
-                <TableCell className="table-cell">{patient.Geschlecht}</TableCell>
-                <TableCell className="table-cell">{patient.Geburtsdatum}</TableCell>
-                <TableCell className="table-cell">{patient.Aufnahmedatum}</TableCell>
-                <TableCell className="table-cell">{patient['ID-Nr']}</TableCell>
-                <TableCell className="table-cell">{patient['AKI-Score']}</TableCell>
-                <TableCell className="patient-actions">
+              <TableRow key={index} className="patient-row" onClick={() => handleRowClick(patient['id_nr'])} style={{ cursor: 'pointer' }}>
+              <TableCell className="table-cell">{patient.nachname}</TableCell>
+              <TableCell className="table-cell">{patient.vorname}</TableCell>
+              <TableCell className="table-cell">{patient.geschlecht}</TableCell>
+              <TableCell className="table-cell">{patient.geburtsdatum}</TableCell>
+              <TableCell className="table-cell">{patient.aufnahmedatum}</TableCell>
+              <TableCell className="table-cell">{patient['id_nr']}</TableCell>
+              <TableCell className="table-cell">{patient['aki_score']}</TableCell>
+              <TableCell className="patient-actions">
                   <Tooltip title="Favorit">
                     <IconButton><StarIcon /></IconButton>
                   </Tooltip>
