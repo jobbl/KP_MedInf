@@ -1,22 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
+import React, { useEffect, useState } from 'react'; // Import useEffect and useState
+import { useNavigate } from 'react-router-dom'; // Import useNavigate if using React Router
 import WarningIcon from '@mui/icons-material/Warning';
 import { loginUser, registerUser } from '../api';
 import Register from './Register';
 import './Login.css';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const Login = ({ onLogin, onRegister }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
+  const [username, setUsername] = useState(''); // Define username state
+  const [password, setPassword] = useState(''); // Define password state
+  const [error, setError] = useState(''); // Define error state
+  const [open, setOpen] = useState(false); // Define open state if needed
+  const navigate = useNavigate(); // Initialize navigate
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    if (storedUser && storedToken) {
+      onLogin(JSON.parse(storedUser), storedToken);
+      navigate('/home');
+    }
+  }, [navigate, onLogin]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await loginUser(username, password);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
       onLogin(response.data.user, response.data.token);
       navigate('/home');
     } catch (error) {
