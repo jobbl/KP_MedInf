@@ -54,7 +54,10 @@ const PatientDetail = ({ user }) => {
               <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
               <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
               <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
-              <Button variant="contained">Laborwerte</Button>
+              <Box display="flex" gap="1rem">
+                <Button variant="contained">Laborwerte</Button>
+                <Button variant="contained">Neue Laborwerte hinzufügen</Button>
+              </Box>
             </Box>
           </Grid>
           <Grid item xs={12}>
