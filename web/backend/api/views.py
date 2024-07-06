@@ -171,10 +171,12 @@ class PatientFeatureUploadView(APIView):
             features_created = 0
             for row in reader:
                 try:
-                    print(row)
+                    timestamp=row['charttime']
                     patient = Patient.objects.get(patient_id=patient_id, user=user)
                     PatientFeature.objects.create(
                         patient=patient,
+                        patient_id_original=patient_id,
+                        # timestamp=row['charttime'],
                         data=row
                     )
                     features_created += 1
@@ -185,3 +187,12 @@ class PatientFeatureUploadView(APIView):
             return Response({"success": f"{features_created} features added successfully."}, status=201)
         except Exception as e:
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
+
+class LabValuesListView(APIView):
+    def get(self, request, patient_id):
+        print("patient_id", patient_id)
+        print(PatientFeature.objects.all())
+        lab_values = PatientFeature.objects.filter(patient_id_original=patient_id)
+        print("lab_values", lab_values)
+        serializer = PatientFeatureSerializer(lab_values, many=True)
+        return Response(serializer.data)

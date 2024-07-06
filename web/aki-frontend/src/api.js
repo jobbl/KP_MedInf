@@ -84,4 +84,11 @@ export const predictPatient = (patientId) => {
 };
 
 // Export the api instance if needed elsewhere
+
+export const getLabValues = (patientId) => {
+  console.log('getLabValues');
+  console.log('patientId',patientId);
+  return api.get(`/patients/${patientId}/lab_values/`);
+};
+
 export default api;
