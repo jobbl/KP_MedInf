@@ -18,13 +18,16 @@ const PatientDetail = ({ user , token}) => {
   console.log(patients);
   const patient = patients.find(patient => patient['id_nr'] == id);
 
-
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
   }
 
   const handleBackClick = () => {
     navigate('/home');
+  };
+  
+  const handleLabValuesClick = () => {
+    navigate(`/patient/${id}/labdetails`, { state: { patient } });
   };
 
   const handleFileChange = (event) => {
@@ -83,7 +86,7 @@ const PatientDetail = ({ user , token}) => {
               <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
               <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
               <Box display="flex" gap="1rem">
-                <Button variant="contained">Laborwerte</Button>
+                <Button variant="contained" onClick={handleLabValuesClick}>Laborwerte</Button>
                 <input
                   accept=".csv"
                   style={{ display: 'none' }}

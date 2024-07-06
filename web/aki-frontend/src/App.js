@@ -5,6 +5,7 @@ import Home from './components/Home.js';
 import PatientDetail from './components/PatientDetail.js';
 import { PatientProvider } from './PatientContext.js';
 import { logoutUser } from './api.js';
+import PatientLabDetail from './components/PatientLabDetail';
 
 console.log('App.js');
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/home" element={isLoggedIn ? <Home user={user} token={token} onLogout={handleLogout} /> : <Navigate to="/login" />} />
           <Route path="/patient/:id" element={isLoggedIn ? <PatientDetail user={user} token={token} /> : <Navigate to="/login" />} />
           <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/patient/:id/labdetails" element={<PatientLabDetail user={user} token={token}  />} />
         </Routes>
       </Router>
     </PatientProvider>
