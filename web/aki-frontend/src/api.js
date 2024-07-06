@@ -80,7 +80,7 @@ export const uploadPatients = (file) => {
 
 // Predict based on patient features
 export const predictPatient = (patientId) => {
-  return api.post(`/predict/${patientId}/`);
+  return api.get(`/predict/${patientId}/`);
 };
 
 // Export the api instance if needed elsewhere
