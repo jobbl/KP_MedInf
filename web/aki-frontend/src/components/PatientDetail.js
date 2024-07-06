@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PatientContext } from '../PatientContext';
 import Sidebar from './Sidebar';
 import './PatientDetail.css';
-import { createPatientFeatureFromFile } from '../api';
+import { createPatientFeatureFromFile, predictPatient } from '../api';
 
 const PatientDetail = ({ user , token}) => {
   const { id } = useParams();
@@ -56,6 +56,19 @@ const PatientDetail = ({ user , token}) => {
         console.error('Error message:', error.message);
         alert(`Error uploading lab values: ${error.message}`);
       }
+    }
+  };
+
+  const handleNewPrediction = async () => {
+    try {
+      const response = await predictPatient(id, token);
+      // Handle the response here. For example, you might want to update the state
+      // with the new prediction or show a success message.
+      console.log('New prediction:', response);
+      // You might want to add some state update or notification here
+    } catch (error) {
+      console.error('Failed to create new prediction:', error);
+      // Handle the error, maybe show an error message to the user
     }
   };
 
@@ -113,18 +126,12 @@ const PatientDetail = ({ user , token}) => {
               <Typography variant="h5">AKI Prognosen</Typography>
               <Typography variant="body2">nächste Prognose: 05.06.2024, 13:00</Typography>
               <Box display="flex" gap="1rem">
-                <Button variant="contained">neue Prognose</Button>
-                <Button variant="contained">manuelle Prognose</Button>
+              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose</Button>              
               </Box>
               <Box className="prognosis-overview">
                 <Typography variant="body2">Prognosenübersicht</Typography>
                 <Box className="prognosis-row">
-                  <Typography>45%</Typography>
-                  <Typography>Startdatum</Typography>
-                  <Typography>Automatisch</Typography>
-                </Box>
-                <Box className="prognosis-row">
-                  <Typography>23%</Typography>
+                <Typography>{patient.aki_score}</Typography>
                   <Typography>Startdatum</Typography>
                   <Typography>Manuell</Typography>
                 </Box>
