@@ -150,3 +150,36 @@ class PatientCSVUploadView(APIView):
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
 
 
+class PatientFeatureUploadView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]  
+    
+    def post(self, request, patient_id, format=None):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=400)
+
+        if not file_obj.name.endswith('.csv'):
+            return Response({"error": "Invalid file format. Please upload a CSV file."}, status=400)
+
+        user = request.user 
+
+        try:
+            decoded_file = StringIO(file_obj.read().decode('utf-8'))
+            reader = csv.DictReader(decoded_file)
+            features_created = 0
+            for row in reader:
+                try:
+                    patient = Patient.objects.get(patient_id=row['ID-Nr'], user=user)
+                    PatientFeature.objects.create(
+                        patient=patient,
+                        data=row
+                    )
+                    features_created += 1
+                except Patient.DoesNotExist:
+                    return Response({"error": f"Patient with ID-Nr {row['ID-Nr']} not found."}, status=404)
+                except ValueError as e:
+                    return Response({"error": f"Invalid data format: {str(e)}"}, status=400)
+            return Response({"success": f"{features_created} features added successfully."}, status=201)
+        except Exception as e:
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
