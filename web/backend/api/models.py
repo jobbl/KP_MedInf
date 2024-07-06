@@ -55,8 +55,9 @@ class Patient(models.Model):
 
 class PatientFeature(models.Model):
     patient = models.ForeignKey(Patient, related_name='features', on_delete=models.CASCADE)
+    patient_id_original = models.CharField(max_length=100)
     data = models.JSONField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    # timestamp = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.patient.patient_id} - {self.timestamp}"
+        return str(self.patient_id_original)

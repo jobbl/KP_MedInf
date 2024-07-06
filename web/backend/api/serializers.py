@@ -22,4 +22,4 @@ class PatientSerializer(serializers.ModelSerializer):
 class PatientFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientFeature
-        fields = ['id', 'patient', 'data', 'timestamp']
+        fields = ['id', 'patient', 'data']
