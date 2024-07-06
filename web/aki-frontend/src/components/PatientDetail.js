@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, Typography, Button, IconButton, Tooltip, Switch, Grid } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -7,18 +7,17 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PatientContext } from '../PatientContext';
 import Sidebar from './Sidebar';
 import './PatientDetail.css';
+import { createPatientFeatureFromFile } from '../api';
 
-const PatientDetail = ({ user }) => {
+const PatientDetail = ({ user , token}) => {
   const { id } = useParams();
+  console.log('id',id);
   const patients = useContext(PatientContext);
   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
   console.log(patients);
-  console.log(id);
   const patient = patients.find(patient => patient['id_nr'] == id);
-  // const patient = patients.find(patient => {
-  //   console.log(`Comparing patient ID-Nr: ${patient['id_nr']} with ID: ${id}`);
-  //   return patient['id-nr'] == id;
-  // });
+
 
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
@@ -26,6 +25,52 @@ const PatientDetail = ({ user }) => {
 
   const handleBackClick = () => {
     navigate('/home');
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const handleAddLabValues = async () => {
+    if (!file) {
+      alert('Please select a CSV file first.');
+      return;
+    }
+  
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const csvData = e.target.result;
+      const lines = csvData.split('\n');
+      const headers = lines[0].split(',');
+      const data = lines.slice(1).map(line => {
+        const values = line.split(',');
+        return headers.reduce((obj, header, index) => {
+          obj[header.trim()] = values[index] ? values[index].trim() : '';
+          return obj;
+        }, {});
+      });
+  
+      try {
+        console.log('patient', patient);
+        console.log('data', data);
+        const response = await createPatientFeatureFromFile({ data }, user.token);
+        console.log('Lab values added successfully:', response.data);
+        alert('Lab values uploaded successfully!');
+      } catch (error) {
+        if (error.response) {
+          console.error('Error response:', error.response);
+          alert(`Error uploading lab values: ${error.response.data.error}`);
+        } else if (error.request) {
+          console.error('Error request:', error.request);
+          alert('Error uploading lab values: No response from server');
+        } else {
+          console.error('Error message:', error.message);
+          alert(`Error uploading lab values: ${error.message}`);
+        }
+      }
+    };
+  
+    reader.readAsText(file);
   };
 
   return (
@@ -50,14 +95,31 @@ const PatientDetail = ({ user }) => {
             </Box>
           </Grid>
           <Grid item xs={12}>
-            <Box className="patient-info">
+          <Box className="patient-info">
               <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
               <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
               <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
               <Box display="flex" gap="1rem">
                 <Button variant="contained">Laborwerte</Button>
-                <Button variant="contained">Neue Laborwerte hinzufügen</Button>
+                <input
+                  accept=".csv"
+                  style={{ display: 'none' }}
+                  id="raised-button-file"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="raised-button-file">
+                  <Button variant="contained" component="span">
+                    CSV-Datei auswählen
+                  </Button>
+                </label>
+                <Button variant="contained" onClick={handleAddLabValues}>Neue Laborwerte hinzufügen</Button>
               </Box>
+              {file && (
+                <Typography variant="body2" style={{ marginTop: '10px' }}>
+                  Selected file: {file.name}
+                </Typography>
+              )}
             </Box>
           </Grid>
           <Grid item xs={12}>
