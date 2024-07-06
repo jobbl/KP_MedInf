@@ -36,34 +36,6 @@ function Home({ user, token, onLogout }) {
   const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
-  // const handleFileUpload = async () => {
-  //   const formData = new FormData();
-  //   formData.append('file', file);
- 
-  //   try {
-  //     const response = await axios.post('http://localhost:8000/api/upload_patients/', formData, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //     });
-  //     alert('File uploaded successfully');
-  //     handleClose();
-  //     // Fetch updated patients after upload
-  //     const patientsResponse = await getPatients(token);
-  //     setPatients(patientsResponse.data);
-  //   } catch (error) {
-  //     if (error.response) {
-  //       console.error('Error response:', error.response);
-  //       alert(`File upload failed: ${error.response.data.error}`);
-  //     } else if (error.request) {
-  //       console.error('Error request:', error.request);
-  //       alert('File upload failed: No response from server');
-  //     } else {
-  //       console.error('Error message:', error.message);
-  //       alert(`File upload failed: ${error.message}`);
-  //     }
-  //   }
-  // };
 
 // Modify in Home_new.js
 const handleFileUpload = async () => {

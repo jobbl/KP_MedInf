@@ -156,6 +156,7 @@ class PatientFeatureUploadView(APIView):
     
     def post(self, request, patient_id, format=None):
         file_obj = request.FILES.get('file')
+
         if not file_obj:
             return Response({"error": "No file provided"}, status=400)
 
@@ -170,7 +171,8 @@ class PatientFeatureUploadView(APIView):
             features_created = 0
             for row in reader:
                 try:
-                    patient = Patient.objects.get(patient_id=row['ID-Nr'], user=user)
+                    print(row)
+                    patient = Patient.objects.get(patient_id=patient_id, user=user)
                     PatientFeature.objects.create(
                         patient=patient,
                         data=row

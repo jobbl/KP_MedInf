@@ -54,7 +54,7 @@ export const getPatients = () => {
   return api.get('/patients/');
 };
 
-export const createPatientFeatureFromFile = (file) => {
+export const createPatientFeatureFromFile = (patientId,file) => {
   const formData = new FormData();
   console.log('file',file);
   formData.append('file', file);
