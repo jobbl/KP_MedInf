@@ -1,9 +1,9 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography, Button } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ErrorIcon from '@mui/icons-material/Error';
 
-const Sidebar = ({ user }) => {
+const Sidebar = ({ user, onLogout }) => {
   return (
     <Drawer
       variant="permanent"
@@ -27,6 +27,9 @@ const Sidebar = ({ user }) => {
             <ListItemText primary={text} />
           </ListItem>
         ))}
+        <ListItem button onClick={onLogout}>
+          <ListItemText primary="Logout" />
+        </ListItem>
       </List>
     </Drawer>
   );

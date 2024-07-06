@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, Typography, Button, IconButton, Tooltip, Switch, Grid } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -7,13 +7,16 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PatientContext } from '../PatientContext';
 import Sidebar from './Sidebar';
 import './PatientDetail.css';
+import { createPatientFeatureFromFile, predictPatient } from '../api';
 
-const PatientDetail = ({ user }) => {
+const PatientDetail = ({ user , token}) => {
   const { id } = useParams();
+  console.log('id',id);
   const patients = useContext(PatientContext);
   const navigate = useNavigate();
-
-  const patient = patients.find(patient => patient['ID-Nr'] === id);
+  const [file, setFile] = useState(null);
+  console.log(patients);
+  const patient = patients.find(patient => patient['id_nr'] == id);
 
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
@@ -21,6 +24,52 @@ const PatientDetail = ({ user }) => {
 
   const handleBackClick = () => {
     navigate('/home');
+  };
+  
+  const handleLabValuesClick = () => {
+    navigate(`/patient/${id}/labdetails`, { state: { patient } });
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const handleAddLabValues = async () => {
+    if (!file) {
+      alert('Please select a CSV file first.');
+      return;
+    }
+  
+    try {
+      // Assuming createPatientFeatureFromFile is modified to accept FormData
+      // and your backend is set up to handle 'multipart/form-data'
+      const response = await createPatientFeatureFromFile(id, file, user.token);
+      alert('Lab values uploaded successfully!');
+    } catch (error) {
+      if (error.response) {
+        console.error('Error response:', error.response);
+        alert(`Error uploading lab values: ${error.response.data.error}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        alert('Error uploading lab values: No response from server');
+      } else {
+        console.error('Error message:', error.message);
+        alert(`Error uploading lab values: ${error.message}`);
+      }
+    }
+  };
+
+  const handleNewPrediction = async () => {
+    try {
+      const response = await predictPatient(id, token);
+      // Handle the response here. For example, you might want to update the state
+      // with the new prediction or show a success message.
+      console.log('New prediction:', response);
+      // You might want to add some state update or notification here
+    } catch (error) {
+      console.error('Failed to create new prediction:', error);
+      // Handle the error, maybe show an error message to the user
+    }
   };
 
   return (
@@ -33,10 +82,10 @@ const PatientDetail = ({ user }) => {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4">{patient.Vorname} {patient.Nachname}</Typography>
+              <Typography variant="h4">{patient.vorname} {patient.nachname}</Typography>
               <Box>
-                <Typography variant="body1">{patient.Geschlecht}</Typography>
-                <Typography variant="body1">ID-Nr: {patient['ID-Nr']}</Typography>
+                <Typography variant="body1">{patient.geschlecht}</Typography>
+                <Typography variant="body1">ID-Nr: {patient['id-nr']}</Typography>
               </Box>
               <Box>
                 <IconButton><NotificationsIcon /></IconButton>
@@ -45,11 +94,31 @@ const PatientDetail = ({ user }) => {
             </Box>
           </Grid>
           <Grid item xs={12}>
-            <Box className="patient-info">
-              <Typography variant="body1">Geburtsdatum: {patient.Geburtsdatum}</Typography>
-              <Typography variant="body1">Aufnahmedatum: {patient.Aufnahmedatum}</Typography>
-              <Typography variant="body1">Diagnose: {patient.Diagnose}</Typography>
-              <Button variant="contained">Laborwerte</Button>
+          <Box className="patient-info">
+              <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
+              <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
+              <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
+              <Box display="flex" gap="1rem">
+                <Button variant="contained" onClick={handleLabValuesClick}>Laborwerte</Button>
+                <input
+                  accept=".csv"
+                  style={{ display: 'none' }}
+                  id="raised-button-file"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="raised-button-file">
+                  <Button variant="contained" component="span">
+                    CSV-Datei auswählen
+                  </Button>
+                </label>
+                <Button variant="contained" onClick={handleAddLabValues}>Neue Laborwerte hinzufügen</Button>
+              </Box>
+              {file && (
+                <Typography variant="body2" style={{ marginTop: '10px' }}>
+                  Selected file: {file.name}
+                </Typography>
+              )}
             </Box>
           </Grid>
           <Grid item xs={12}>
@@ -57,18 +126,12 @@ const PatientDetail = ({ user }) => {
               <Typography variant="h5">AKI Prognosen</Typography>
               <Typography variant="body2">nächste Prognose: 05.06.2024, 13:00</Typography>
               <Box display="flex" gap="1rem">
-                <Button variant="contained">neue Prognose</Button>
-                <Button variant="contained">manuelle Prognose</Button>
+              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose</Button>              
               </Box>
               <Box className="prognosis-overview">
                 <Typography variant="body2">Prognosenübersicht</Typography>
                 <Box className="prognosis-row">
-                  <Typography>45%</Typography>
-                  <Typography>Startdatum</Typography>
-                  <Typography>Automatisch</Typography>
-                </Box>
-                <Box className="prognosis-row">
-                  <Typography>23%</Typography>
+                <Typography>{patient.aki_score}</Typography>
                   <Typography>Startdatum</Typography>
                   <Typography>Manuell</Typography>
                 </Box>
