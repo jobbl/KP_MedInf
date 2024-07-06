@@ -3,57 +3,85 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api'; // Adjust the URL to match your backend server
 
+// Create the api instance
+const api = axios.create({
+  baseURL: API_URL,
+});
+
+// Add request interceptor to include token
+api.interceptors.request.use(
+  async (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token has expired
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // User registration
 export const registerUser = (username, password) => {
-  return axios.post(`${API_URL}/register/`, { username, password });
+  return api.post('/register/', { username, password });
 };
 
 // User login
 export const loginUser = (username, password) => {
-  return axios.post(`${API_URL}/login/`, { username, password });
+  return api.post('/login/', { username, password });
 };
 
 // User logout
 export const logoutUser = () => {
-  return axios.post(`${API_URL}/logout/`);
+  return api.post('/logout/');
 };
 
 // Get patient's details
-export const getPatients = (token) => {
-  return axios.get(`${API_URL}/patients/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const getPatients = () => {
+  return api.get('/patients/');
 };
 
-// Create patient feature
-export const createPatientFeature = (patientId, data, token) => {
-  return axios.post(`${API_URL}/patients/${patientId}/features/`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+export const createPatientFeatureFromFile = (file) => {
+  const formData = new FormData();
+  console.log('file',file);
+  formData.append('file', file);
 
-// Predict based on patient features
-export const predictPatient = (patientId, token) => {
-  return axios.post(`${API_URL}/predict/${patientId}/`, {}, {
+  return api.post(`/patients/${patientId}/features/upload`, formData, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
     },
   });
 };
 
 // Upload patients from a CSV file
-export const uploadPatients = (file, token) => {
+export const uploadPatients = (file) => {
   const formData = new FormData();
   formData.append('file', file);
-
-  return axios.post(`${API_URL}/upload_patients/`, formData, {
+  
+  return api.post('/upload_patients/', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${token}`,
     },
   });
 };
+
+// Predict based on patient features
+export const predictPatient = (patientId) => {
+  return api.post(`/predict/${patientId}/`);
+};
+
+// Export the api instance if needed elsewhere
+export default api;
