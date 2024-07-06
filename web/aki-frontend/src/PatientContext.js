@@ -1,23 +1,29 @@
 // src/PatientContext.js
 
 import React, { createContext, useState, useEffect } from 'react';
-import Papa from 'papaparse';
+import { getPatients } from './api'; // Adjust the import path as necessary
 
 export const PatientContext = createContext();
 
-export const PatientProvider = ({ children, csvFile }) => {
+export const PatientProvider = ({ children, token }) => {
   const [patients, setPatients] = useState([]);
 
   useEffect(() => {
-    Papa.parse(csvFile, {
-      header: true,
-      download: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        setPatients(results.data);
+    const fetchPatients = async () => {
+      try {
+        const response = await getPatients(token);
+        console.log(response.data);
+        setPatients(response.data); // Assuming the API returns the list of patients directly
+      } catch (error) {
+        console.error("Failed to fetch patients:", error);
+        // Handle error appropriately
       }
-    });
-  }, [csvFile]);
+    };
+
+    if (token) {
+      fetchPatients();
+    }
+  }, [token]); // Dependency array includes token to refetch when it changes
 
   return (
     <PatientContext.Provider value={patients}>
