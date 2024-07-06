@@ -92,18 +92,53 @@ class PatientFeatureCreateView(generics.CreateAPIView):
 
 class PredictView(APIView):
     permission_classes = [IsAuthenticated]
-    def post(self, request, patient_id):
+
+    def get(self, request, patient_id):
+        # Get the patient
+        patient = Patient.objects.filter(patient_id=patient_id, user=request.user).first()
+
+        print(patient)
+
+        # Get the latest PatientFeature entry for this patient
+        latest_feature = PatientFeature.objects.filter(patient=patient).order_by('-data__charttime').first()
+
+        print(latest_feature)
+
+        if not latest_feature:
+            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Extract the relevant features for prediction
+        # You'll need to adjust this based on what features your model expects
+        features = [
+            float(latest_feature.data.get('creatinine_mean', 0)),
+            float(latest_feature.data.get('bun_mean', 0)),
+            # Add more features as needed
+        ]
+
+        print(features)
+
+        # Make prediction
         try:
-            patient = Patient.objects.get(patient_id=patient_id, user=request.user)
-        except Patient.DoesNotExist:
-            return Response({"error": "Patient not found"}, status=404)
-        
-        latest_feature = patient.features.latest('timestamp')
-        print(latest_feature.data)
-        values = list(latest_feature.data.values())
-        prediction = loaded_model.predict([values])
-        prediction = float(prediction[0])
-        return Response({'prediction': prediction})
+            prediction = loaded_model.predict([features])[0]
+            print(prediction)
+            probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
+            print(probability)
+
+            # Save the prediction to the patient
+            patient.aki_score = int(prediction)
+            print(patient.aki_score)
+            patient.save()
+
+            return Response({
+                "patient_id": patient_id,
+                "prediction": int(prediction),
+                "probability": float(probability),
+                "timestamp": latest_feature.data.get('charttime')
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class PatientCSVUploadView(APIView):
     parser_classes = [MultiPartParser]
