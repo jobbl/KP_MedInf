@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Dialog, DialogActions, DialogContent } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
+import { loginUser, registerUser } from '../api';
 import Register from './Register';
 import './Login.css';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const Login = ({ onLogin, onRegister }) => {
   const [username, setUsername] = useState('');
@@ -12,12 +19,35 @@ const Login = ({ onLogin, onRegister }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onLogin(username, password)) {
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    if (storedUser && storedToken) {
+      onLogin(JSON.parse(storedUser), storedToken);
       navigate('/home');
-    } else {
-      setError('Das eingegebene Passwort ist falsch');
+    }
+  }, [navigate, onLogin]);  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await loginUser(username, password);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+      onLogin(response.data.user, response.data.token);
+      navigate('/home');
+    } catch (error) {
+      setError('Login failed. Please check your credentials.');
+    }
+  };
+
+  const handleRegister = async (name, newUsername, newPassword) => {
+    try {
+      await registerUser(newUsername, newPassword);
+      setOpen(false);
+      alert('Registration successful. Please log in.');
+    } catch (error) {
+      alert('Registration failed.');
     }
   };
 
@@ -64,12 +94,12 @@ const Login = ({ onLogin, onRegister }) => {
 
       <Dialog open={open} onClose={handleClose}>
         <DialogContent>
-          <Register onRegister={onRegister} onClose={handleClose} />
+          <Register onRegister={handleRegister} onClose={handleClose} />
         </DialogContent>
         <DialogActions>
-        <Typography variant="body2">
-          <span onClick={handleClose} style={{color: '#497588', cursor: 'pointer'}}>Abbrechen</span>
-        </Typography>
+          <Typography variant="body2">
+            <span onClick={handleClose} style={{color: '#497588', cursor: 'pointer'}}>Abbrechen</span>
+          </Typography>
         </DialogActions>
       </Dialog>
     </div>

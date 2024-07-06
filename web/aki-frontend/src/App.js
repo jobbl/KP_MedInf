@@ -1,44 +1,45 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Home from './components/Home';
-import PatientDetail from './components/PatientDetail';
-import { PatientProvider } from './PatientContext';
-import Sidebar from './components/Sidebar';
+import Login from './components/Login.js';
+import Home from './components/Home.js';
+import PatientDetail from './components/PatientDetail.js';
+import { PatientProvider } from './PatientContext.js';
+import { logoutUser } from './api.js';
+
+console.log('App.js');
 
 function App() {
-  const [users, setUsers] = useState([
-    { name: 'Dr Meier', username: 'thmeier18', password: '1234' },
-    { name: 'User', username: 'user', password: 'passwort' },
-    { name: 'Test', username: '1', password: '1' }
-  ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(null);
-  const csvFile = '/patients.csv'; 
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
-  const handleLogin = (username, password) => {
-    const user = users.find(user => user.username === username && user.password === password);
-    if (user) {
-      setIsLoggedIn(true);
-      setLoggedInUser(user);
-      return true;
-    } else {
-      alert('Das eingegebene Passwort ist falsch');
-      return false;
+  const handleLogin = (loggedInUser, authToken) => {
+    setIsLoggedIn(true);
+    setUser(loggedInUser);
+    setToken(authToken);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser(); // If you have a logout API call
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      setIsLoggedIn(false);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
   };
 
-  const handleRegister = (name, username, password) => {
-    setUsers([...users, { name, username, password }]);
-  };
-
   return (
-    <PatientProvider csvFile={csvFile}>
+    <PatientProvider token={token}>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} onRegister={handleRegister} />} />
-          <Route path="/home" element={isLoggedIn ? <Home user={loggedInUser} /> : <Navigate to="/login" />} />
-          <Route path="/patient/:id" element={isLoggedIn ? <PatientDetail user={loggedInUser} /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/home" element={isLoggedIn ? <Home user={user} token={token} onLogout={handleLogout} /> : <Navigate to="/login" />} />
+          <Route path="/patient/:id" element={isLoggedIn ? <PatientDetail user={user} token={token} /> : <Navigate to="/login" />} />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
