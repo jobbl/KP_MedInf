@@ -7,18 +7,19 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username']
 
-class PatientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Patient
-        fields = ['id', 'patient_id', 'user']
-
 # class PatientSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Patient
-#         fields = ['id', 'patient_id', 'user', 'name', 'first_name', 'sex', 'birthday', 'admittance_date']
+#         fields = ['id', 'patient_id', 'user']
 
+class PatientSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = Patient
+        fields = ['patient_id', 'user', 'nachname', 'vorname', 'geschlecht', 'geburtsdatum', 'aufnahmedatum', 'id_nr', 'aki_score', 'diagnose']
 
 class PatientFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientFeature
-        fields = ['id', 'patient', 'data', 'timestamp']
+        fields = ['id', 'patient', 'data']

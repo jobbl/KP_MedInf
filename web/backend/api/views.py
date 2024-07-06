@@ -10,6 +10,12 @@ import os
 import numpy as np
 from xgboost import XGBClassifier
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import  MultiPartParser
+from rest_framework import status
+import csv
+from io import StringIO
+from datetime import datetime
+from django.db import IntegrityError
 
 model_path = "models/model_full"
 loaded_model = XGBClassifier()
@@ -86,15 +92,142 @@ class PatientFeatureCreateView(generics.CreateAPIView):
 
 class PredictView(APIView):
     permission_classes = [IsAuthenticated]
-    def post(self, request, patient_id):
+
+    def get(self, request, patient_id):
+        # Get the patient
+        patient = Patient.objects.filter(patient_id=patient_id, user=request.user).first()
+
+        print(patient)
+
+        # Get the latest PatientFeature entry for this patient
+        latest_feature = PatientFeature.objects.filter(patient=patient).order_by('-data__charttime').first()
+
+        print(latest_feature)
+
+        if not latest_feature:
+            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Extract the relevant features for prediction
+        # You'll need to adjust this based on what features your model expects
+        features = [
+            float(latest_feature.data.get('creatinine_mean', 0)),
+            float(latest_feature.data.get('bun_mean', 0)),
+            # Add more features as needed
+        ]
+
+        print(features)
+
+        # Make prediction
         try:
-            patient = Patient.objects.get(patient_id=patient_id, user=request.user)
-        except Patient.DoesNotExist:
-            return Response({"error": "Patient not found"}, status=404)
-        
-        latest_feature = patient.features.latest('timestamp')
-        print(latest_feature.data)
-        values = list(latest_feature.data.values())
-        prediction = loaded_model.predict([values])
-        prediction = float(prediction[0])
-        return Response({'prediction': prediction})
+            prediction = loaded_model.predict([features])[0]
+            print(prediction)
+            probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
+            print(probability)
+
+            # Save the prediction to the patient
+            patient.aki_score = int(prediction)
+            print(patient.aki_score)
+            patient.save()
+
+            return Response({
+                "patient_id": patient_id,
+                "prediction": int(prediction),
+                "probability": float(probability),
+                "timestamp": latest_feature.data.get('charttime')
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PatientCSVUploadView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]  
+
+    def post(self, request, format=None):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=400)
+
+        if not file_obj.name.endswith('.csv'):
+            return Response({"error": "Invalid file format. Please upload a CSV file."}, status=400)
+
+        user = request.user 
+
+        try:
+            decoded_file = StringIO(file_obj.read().decode('utf-8'))
+            reader = csv.DictReader(decoded_file)
+            patients_created = 0
+            for row in reader:
+                try:
+                    Patient.objects.create(
+                        user=user,
+                        patient_id=row['ID-Nr'],  # Make sure this column exists in your CSV
+                        nachname=row['Nachname'],
+                        vorname=row['Vorname'],
+                        geschlecht=row['Geschlecht'],
+                        geburtsdatum=datetime.strptime(row['Geburtsdatum'], '%Y-%m-%d').date(),
+                        aufnahmedatum=datetime.strptime(row['Aufnahmedatum'], '%Y-%m-%d').date(),
+                        id_nr=row['ID-Nr'],
+                        aki_score=int(row['AKI-Score']),
+                        diagnose=row['Diagnose']
+                    )
+                    patients_created += 1
+                except IntegrityError as e:
+                    if 'unique constraint' in str(e).lower():
+                        return Response({"error": f"Patient with ID-Nr {row['ID-Nr']} already exists."}, status=400)
+                    else:
+                        raise
+                except ValueError as e:
+                    return Response({"error": f"Invalid data format: {str(e)}"}, status=400)
+            return Response({"success": f"{patients_created} patients added successfully."}, status=201)
+        except Exception as e:
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
+
+
+class PatientFeatureUploadView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]  
+    
+    def post(self, request, patient_id, format=None):
+        file_obj = request.FILES.get('file')
+
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=400)
+
+        if not file_obj.name.endswith('.csv'):
+            return Response({"error": "Invalid file format. Please upload a CSV file."}, status=400)
+
+        user = request.user 
+
+        try:
+            decoded_file = StringIO(file_obj.read().decode('utf-8'))
+            reader = csv.DictReader(decoded_file)
+            features_created = 0
+            for row in reader:
+                try:
+                    timestamp=row['charttime']
+                    patient = Patient.objects.get(patient_id=patient_id, user=user)
+                    PatientFeature.objects.create(
+                        patient=patient,
+                        patient_id_original=patient_id,
+                        # timestamp=row['charttime'],
+                        data=row
+                    )
+                    features_created += 1
+                except Patient.DoesNotExist:
+                    return Response({"error": f"Patient with ID-Nr {row['ID-Nr']} not found."}, status=404)
+                except ValueError as e:
+                    return Response({"error": f"Invalid data format: {str(e)}"}, status=400)
+            return Response({"success": f"{features_created} features added successfully."}, status=201)
+        except Exception as e:
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=400)
+
+class LabValuesListView(APIView):
+    def get(self, request, patient_id):
+        print("patient_id", patient_id)
+        print(PatientFeature.objects.all())
+        lab_values = PatientFeature.objects.filter(patient_id_original=patient_id)
+        print("lab_values", lab_values)
+        serializer = PatientFeatureSerializer(lab_values, many=True)
+        return Response(serializer.data)
