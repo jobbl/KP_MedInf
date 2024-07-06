@@ -37,40 +37,23 @@ const PatientDetail = ({ user , token}) => {
       return;
     }
   
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const csvData = e.target.result;
-      const lines = csvData.split('\n');
-      const headers = lines[0].split(',');
-      const data = lines.slice(1).map(line => {
-        const values = line.split(',');
-        return headers.reduce((obj, header, index) => {
-          obj[header.trim()] = values[index] ? values[index].trim() : '';
-          return obj;
-        }, {});
-      });
-  
-      try {
-        console.log('patient', patient);
-        console.log('data', data);
-        const response = await createPatientFeatureFromFile({ data }, user.token);
-        console.log('Lab values added successfully:', response.data);
-        alert('Lab values uploaded successfully!');
-      } catch (error) {
-        if (error.response) {
-          console.error('Error response:', error.response);
-          alert(`Error uploading lab values: ${error.response.data.error}`);
-        } else if (error.request) {
-          console.error('Error request:', error.request);
-          alert('Error uploading lab values: No response from server');
-        } else {
-          console.error('Error message:', error.message);
-          alert(`Error uploading lab values: ${error.message}`);
-        }
+    try {
+      // Assuming createPatientFeatureFromFile is modified to accept FormData
+      // and your backend is set up to handle 'multipart/form-data'
+      const response = await createPatientFeatureFromFile(id, file, user.token);
+      alert('Lab values uploaded successfully!');
+    } catch (error) {
+      if (error.response) {
+        console.error('Error response:', error.response);
+        alert(`Error uploading lab values: ${error.response.data.error}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        alert('Error uploading lab values: No response from server');
+      } else {
+        console.error('Error message:', error.message);
+        alert(`Error uploading lab values: ${error.message}`);
       }
-    };
-  
-    reader.readAsText(file);
+    }
   };
 
   return (
