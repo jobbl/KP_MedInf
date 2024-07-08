@@ -2,8 +2,8 @@ from rest_framework import generics, permissions
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Patient, PatientFeature
-from .serializers import UserSerializer, PatientSerializer, PatientFeatureSerializer
+from .models import Patient, PatientFeature, PatientPrediction
+from .serializers import UserSerializer, PatientSerializer, PatientFeatureSerializer, PatientPredictionSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
 import os
@@ -16,6 +16,8 @@ import csv
 from io import StringIO
 from datetime import datetime
 from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
+from django.db.models import Max
 
 model_path = "models/model_full"
 loaded_model = XGBClassifier()
@@ -55,11 +57,9 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        print(request.data)
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
-        print(user)
         if user:
             login(request, user)
             refresh = RefreshToken.for_user(user)
@@ -90,54 +90,6 @@ class PatientFeatureCreateView(generics.CreateAPIView):
     serializer_class = PatientFeatureSerializer
     permission_classes = [IsAuthenticated]
 
-class PredictView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, patient_id):
-        # Get the patient
-        patient = Patient.objects.filter(patient_id=patient_id, user=request.user).first()
-
-        print(patient)
-
-        # Get the latest PatientFeature entry for this patient
-        latest_feature = PatientFeature.objects.filter(patient=patient).order_by('-data__charttime').first()
-
-        print(latest_feature)
-
-        if not latest_feature:
-            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
-
-        # Extract the relevant features for prediction
-        # You'll need to adjust this based on what features your model expects
-        features = [
-            float(latest_feature.data.get('creatinine_mean', 0)),
-            float(latest_feature.data.get('bun_mean', 0)),
-            # Add more features as needed
-        ]
-
-        print(features)
-
-        # Make prediction
-        try:
-            prediction = loaded_model.predict([features])[0]
-            print(prediction)
-            probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
-            print(probability)
-
-            # Save the prediction to the patient
-            patient.aki_score = int(prediction)
-            print(patient.aki_score)
-            patient.save()
-
-            return Response({
-                "patient_id": patient_id,
-                "prediction": int(prediction),
-                "probability": float(probability),
-                "timestamp": latest_feature.data.get('charttime')
-            }, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PatientCSVUploadView(APIView):
@@ -225,9 +177,57 @@ class PatientFeatureUploadView(APIView):
 
 class LabValuesListView(APIView):
     def get(self, request, patient_id):
-        print("patient_id", patient_id)
-        print(PatientFeature.objects.all())
         lab_values = PatientFeature.objects.filter(patient_id_original=patient_id)
-        print("lab_values", lab_values)
         serializer = PatientFeatureSerializer(lab_values, many=True)
+        return Response(serializer.data)
+        
+class PredictView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, patient_id):
+        # Ensure the patient exists and belongs to the user making the request
+        patient = get_object_or_404(Patient, patient_id=patient_id, user=request.user)
+
+        # Get the latest PatientFeature entry for this patient by ordering by a timestamp field
+        latest_feature = PatientFeature.objects.filter(patient=patient).aggregate(Max('data__charttime'))
+
+        if not latest_feature['data__charttime__max']:
+            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
+        # we now get the PatientFeature instance with this timestamp
+        latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
+        # Extract the relevant features for prediction
+        features = [
+            float(latest_feature_instance.data.get('creatinine_mean', 0)),
+            float(latest_feature_instance.data.get('bun_mean', 0)),
+            # Add more features as needed
+        ]
+
+        try:
+            # Make prediction
+            prediction = loaded_model.predict([features])[0]
+            probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
+
+            # Create and save the new PatientPrediction
+            new_prediction = PatientPrediction(
+                patient=patient,
+                prediction={"prediction": int(prediction), "probability": float(probability)},
+                # timestamp is auto-added
+            )
+            new_prediction.save()
+
+
+            # Optionally, you can serialize and return the new prediction
+            serializer = PatientPredictionSerializer(new_prediction)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except:
+            return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PatientPredictionView(APIView):
+    def get(self, request, patient_id):
+        predictions = PatientPrediction.objects.filter(patient__patient_id=patient_id)
+        serializer = PatientPredictionSerializer(predictions, many=True)
         return Response(serializer.data)

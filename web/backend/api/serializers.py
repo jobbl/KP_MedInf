@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Patient, PatientFeature
+from .models import Patient, PatientFeature, PatientPrediction
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,3 +23,8 @@ class PatientFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientFeature
         fields = ['id', 'patient', 'data']
+
+class PatientPredictionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientPrediction
+        fields = ['id', 'patient', 'prediction', 'timestamp']
