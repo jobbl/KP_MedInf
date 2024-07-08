@@ -61,3 +61,11 @@ class PatientFeature(models.Model):
 
     def __str__(self):
         return str(self.patient_id_original)
+
+class PatientPrediction(models.Model):
+    patient = models.ForeignKey(Patient, related_name='predictions', on_delete=models.CASCADE)
+    prediction = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.patient} - {self.timestamp}"

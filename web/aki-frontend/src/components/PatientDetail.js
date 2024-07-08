@@ -1,4 +1,4 @@
-import React, { useContext, useState  } from 'react';
+import React, { useContext, useState, useEffect  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, Typography, Button, IconButton, Tooltip, Switch, Grid } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PatientContext } from '../PatientContext';
 import Sidebar from './Sidebar';
 import './PatientDetail.css';
-import { createPatientFeatureFromFile, predictPatient } from '../api';
+import { createPatientFeatureFromFile, predictPatient, getPredictions } from '../api';
 
 const PatientDetail = ({ user , token}) => {
   const { id } = useParams();
@@ -15,8 +15,31 @@ const PatientDetail = ({ user , token}) => {
   const patients = useContext(PatientContext);
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
+  const [predictions, setPredictions] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   console.log(patients);
   const patient = patients.find(patient => patient['id_nr'] == id);
+
+  useEffect(() => {
+    const fetchPredictions = async () => {
+      try {
+        // Directly use the data returned from getPredictions, assuming it's already in JSON format
+        const response = await getPredictions(id, token);
+        console.log(response.data); // Now accessing the data property of the response
+        // Ensure the data property exists and is an array before attempting to sort
+        if (Array.isArray(response.data)) {
+          const sortedPredictions = response.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          setPredictions(sortedPredictions);
+        } else {
+          console.error('Unexpected data format:', response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch predictions:', error);
+      }
+    };
+    fetchPredictions();
+  }, [id, token,refreshKey]); // Assuming id and token are dependencies of this effect
+
 
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
@@ -66,6 +89,7 @@ const PatientDetail = ({ user , token}) => {
       // with the new prediction or show a success message.
       console.log('New prediction:', response);
       // You might want to add some state update or notification here
+      setRefreshKey(oldKey => oldKey + 1);
     } catch (error) {
       console.error('Failed to create new prediction:', error);
       // Handle the error, maybe show an error message to the user
@@ -129,13 +153,15 @@ const PatientDetail = ({ user , token}) => {
               <Button variant="contained" onClick={handleNewPrediction}>neue Prognose</Button>              
               </Box>
               <Box className="prognosis-overview">
-                <Typography variant="body2">Prognosenübersicht</Typography>
-                <Box className="prognosis-row">
-                <Typography>{patient.aki_score}</Typography>
-                  <Typography>Startdatum</Typography>
-                  <Typography>Manuell</Typography>
-                </Box>
-              </Box>
+        <Typography variant="body2">Prognosenübersicht</Typography>
+        {predictions.map((prediction, index) => (
+          <Box className="prognosis-row" key={index}>
+            <Typography>{(prediction.prediction.probability * 100).toFixed(0)}%</Typography>
+            <Typography>{new Date(prediction.timestamp).toLocaleString()}</Typography>
+            <Typography>{prediction.manual ? 'Ja' : 'Nein'}</Typography>
+          </Box>
+        ))}
+      </Box>
               <Box className="comments-section">
                 <Typography variant="h6">Kommentare</Typography>
                 <Typography variant="body2">Letzte Prognose nachvollziehbar. Empfehle präventive Maßnahmen.</Typography>
