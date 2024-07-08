@@ -80,7 +80,7 @@ export const uploadPatients = (file) => {
 
 // Predict based on patient features
 export const predictPatient = (patientId) => {
-  return api.get(`/predict/${patientId}/`);
+  return api.post(`/predict/${patientId}/`);
 };
 
 // Export the api instance if needed elsewhere
@@ -90,5 +90,10 @@ export const getLabValues = (patientId) => {
   console.log('patientId',patientId);
   return api.get(`/patients/${patientId}/lab_values/`);
 };
+
+export const getPredictions = (patientId) => {
+  return api.get(`/patients/${patientId}/predictions/`);
+};
+
 
 export default api;

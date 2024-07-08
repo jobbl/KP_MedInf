@@ -1,6 +1,6 @@
 from django.urls import path, include
 from django.contrib import admin
-from .views import RegisterView, LoginView, LogoutView, PatientListView, PredictView, PatientCSVUploadView, PatientFeatureUploadView, LabValuesListView
+from .views import RegisterView, LoginView, LogoutView, PatientListView, PredictView, PatientCSVUploadView, PatientFeatureUploadView, LabValuesListView, PatientPredictionView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('predict/<int:patient_id>/', PredictView.as_view(), name='predict'),
     path('upload_patients/', PatientCSVUploadView.as_view(), name='upload_patients'),
     path('patients/<int:patient_id>/lab_values/', LabValuesListView.as_view(), name='lab-values-list'),
+    path('patients/<int:patient_id>/predictions/', PatientPredictionView.as_view(), name='patient-predictions'),
 ]
