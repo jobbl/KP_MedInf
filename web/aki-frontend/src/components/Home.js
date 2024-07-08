@@ -11,54 +11,54 @@ function Home({ user, token, onLogout }) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+
+  // Moved fetchPatients outside of useEffect
+  const fetchPatients = async () => {
+    try {
+      const response = await getPatients(token);
+      setPatients(response.data);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // Token has expired
+        onLogout();
+      } else {
+        alert('Failed to fetch patients');
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await getPatients(token);
-        setPatients(response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // Token has expired
-          onLogout();
-        } else {
-          alert('Failed to fetch patients');
-        }
-      }
-    };
-  
     fetchPatients();
   }, [token, onLogout]);
-
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
-
-// Modify in Home_new.js
-const handleFileUpload = async () => {
-  try {
-    const response = await uploadPatients(file, token);
-    alert('File uploaded successfully');
-    handleClose();
-    // Fetch updated patients after upload
-    const patientsResponse = await getPatients(token);
-    setPatients(patientsResponse.data);
-  } catch (error) {
-    if (error.response) {
-      console.error('Error response:', error.response);
-      alert(`File upload failed: ${error.response.data.error}`);
-    } else if (error.request) {
-      console.error('Error request:', error.request);
-      alert('File upload failed: No response from server');
-    } else {
-      console.error('Error message:', error.message);
-      alert(`File upload failed: ${error.message}`);
+  const handleFileUpload = async () => {
+    try {
+      const response = await uploadPatients(file, token);
+      alert('File uploaded successfully');
+      handleClose();
+      // Fetch updated patients after upload
+      await fetchPatients(); // Call fetchPatients again to refresh the list
+      setRefreshKey(refreshKey + 1); // Increment refreshKey to force a re-render
+    } catch (error) {
+      if (error.response) {
+        console.error('Error response:', error.response);
+        alert(`File upload failed: ${error.response.data.error}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        alert('File upload failed: No response from server');
+      } else {
+        console.error('Error message:', error.message);
+        alert(`File upload failed: ${error.message}`);
+      }
     }
-  }
-};
+  };
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#FFFFFF' }}>
@@ -85,7 +85,6 @@ const handleFileUpload = async () => {
               <Button onClick={handleFileUpload}>Hochladen</Button>
             </Box>
           </Modal>
-          
         </Box>
       </Container>
     </div>
