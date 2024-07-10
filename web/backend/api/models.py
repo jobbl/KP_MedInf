@@ -2,16 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Patient(models.Model):
-    patient_id = models.CharField(max_length=100, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nachname = models.CharField(max_length=100)
-    vorname = models.CharField(max_length=100)
-    geschlecht = models.CharField(max_length=10)
+    patient_id = models.CharField(null=True, max_length=100, unique=True, default=0)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    nachname = models.CharField(null=True, max_length=100)
+    vorname = models.CharField(null=True, max_length=100)
+    geschlecht = models.CharField(null=True, max_length=10)
     geburtsdatum = models.DateField(null=True, blank=True)
     aufnahmedatum = models.DateField(null=True, blank=True)
-    id_nr = models.CharField(max_length=100, unique=True)
+    id_nr = models.CharField(null=True, max_length=100, unique=True)
     aki_score = models.IntegerField()
-    diagnose = models.CharField(max_length=255)
+    diagnose = models.CharField(null=True, max_length=255)
 
     def __str__(self):
         return self.patient_id
@@ -55,7 +55,7 @@ class Patient(models.Model):
 
 class PatientFeature(models.Model):
     patient = models.ForeignKey(Patient, related_name='features', on_delete=models.CASCADE)
-    patient_id_original = models.CharField(max_length=100)
+    patient_id_original = models.CharField(max_length=100, null=True, blank=True)
     data = models.JSONField()
     # timestamp = models.DateTimeField()
 

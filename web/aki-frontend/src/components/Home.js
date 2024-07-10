@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getPatients, uploadPatients } from '../api';
 import { Button, Modal, Box, Typography, TextField, Container } from '@mui/material';
-import axios from 'axios';
-import Sidebar from './Sidebar';
+import Layout from './Layout';
 import PatientTable from './PatientTable';
-import './../App.css';
 
 function Home({ user, token, onLogout }) {
   const [patients, setPatients] = useState([]);
@@ -13,15 +11,12 @@ function Home({ user, token, onLogout }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-
-  // Moved fetchPatients outside of useEffect
   const fetchPatients = async () => {
     try {
       const response = await getPatients(token);
       setPatients(response.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        // Token has expired
         onLogout();
       } else {
         alert('Failed to fetch patients');
@@ -43,9 +38,8 @@ function Home({ user, token, onLogout }) {
       const response = await uploadPatients(file, token);
       alert('File uploaded successfully');
       handleClose();
-      // Fetch updated patients after upload
-      await fetchPatients(); // Call fetchPatients again to refresh the list
-      setRefreshKey(refreshKey + 1); // Increment refreshKey to force a re-render
+      await fetchPatients();
+      setRefreshKey(refreshKey + 1);
     } catch (error) {
       if (error.response) {
         console.error('Error response:', error.response);
@@ -61,33 +55,34 @@ function Home({ user, token, onLogout }) {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#FFFFFF' }}>
-      <Sidebar user={user} onLogout={onLogout} />
-      <Container sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ mt: 8 }}>
-          <Typography variant="h4" component="h2" sx={{ mb: 4 }}>Willkommen, {user.username}</Typography>
-          <TextField
+    <Layout user={user} onLogout={onLogout}>
+      <Container sx={{ mt: 4, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h4" component="h2" sx={{ mb: 2, alignSelf: 'flex-start' }}>Willkommen, {user.username}</Typography>
+        
+        <TextField
             label="Suche Patienten"
             variant="outlined"
             fullWidth
             value={searchQuery}
             onChange={handleSearchChange}
-            sx={{ mb: 4 }}
+            sx={{ mb: 0, width: '60%', alignSelf: 'flex-start' }} 
+            size="small" 
           />
+        <Box sx={{ width: '100%', mt: 0,  }}>
           <PatientTable searchQuery={searchQuery} />
-          <Button variant="contained" onClick={handleOpen}>Neue Patienten hinzufügen</Button>
-          <Modal open={open} onClose={handleClose}>
-            <Box sx={{ ...style, width: 400 }}>
-              <Typography variant="h6" component="h2">
-                CSV Datei hochladen
-              </Typography>
-              <input type="file" onChange={handleFileChange} />
-              <Button onClick={handleFileUpload}>Hochladen</Button>
-            </Box>
-          </Modal>
         </Box>
+        <Button variant="contained" onClick={handleOpen} sx={{ mt: 2, alignSelf: 'flex-start' }}>Neue Patienten hinzufügen</Button>
+        <Modal open={open} onClose={handleClose}>
+          <Box sx={{ ...style, width: 400 }}>
+            <Typography variant="h6" component="h2">
+              CSV Datei hochladen
+            </Typography>
+            <input type="file" onChange={handleFileChange} />
+            <Button onClick={handleFileUpload}>Hochladen</Button>
+          </Box>
+        </Modal>
       </Container>
-    </div>
+    </Layout>
   );
 }
 
@@ -97,7 +92,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: 'background.paper',
+  bgcolor: '#ffffff',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
