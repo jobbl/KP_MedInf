@@ -19,10 +19,10 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
 
-model_path = "models/model_full"
+model_path = "models"
 loaded_model = XGBClassifier()
 try:
-    loaded_model.load_model(os.path.join(model_path, 'simple_xgboost_model.model'))
+    loaded_model.load_model(os.path.join(model_path, 'xgb_original.model'))
 except:
     print("Model not found, using dummy model")
     # initialize for 2 parameters
@@ -197,33 +197,49 @@ class PredictView(APIView):
         # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
         # we now get the PatientFeature instance with this timestamp
         latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
+        print(latest_feature_instance)
+        print(latest_feature_instance.data)
         # Extract the relevant features for prediction
-        features = [
-            float(latest_feature_instance.data.get('creatinine_mean', 0)),
-            float(latest_feature_instance.data.get('bun_mean', 0)),
-            # Add more features as needed
-        ]
+        # features = [
+        #     float(latest_feature_instance.data.get('creatinine_mean', 0)),
+        #     float(latest_feature_instance.data.get('bun_mean', 0)),
+        #     # Add more features as needed
+        # ]
+        # use all features
+        # drop charttime from features
+        latest_feature_instance_cleaned = latest_feature_instance.data.copy()
+        latest_feature_instance_cleaned.pop('charttime', None)
+        print(latest_feature_instance_cleaned)
+        features = []
+        print(latest_feature_instance_cleaned)
+        for key, value in latest_feature_instance_cleaned.items():
+            try:
+                features.append(float(value))
+            except:
+                features.append(0)
+        
+        print(len(features))
+        print(features)
+        # try:
+        # Make prediction
+        prediction = loaded_model.predict([features])[0]
+        probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
 
-        try:
-            # Make prediction
-            prediction = loaded_model.predict([features])[0]
-            probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
-
-            # Create and save the new PatientPrediction
-            new_prediction = PatientPrediction(
-                patient=patient,
-                prediction={"prediction": int(prediction), "probability": float(probability)},
-                # timestamp is auto-added
-            )
-            new_prediction.save()
+        # Create and save the new PatientPrediction
+        new_prediction = PatientPrediction(
+            patient=patient,
+            prediction={"prediction": int(prediction), "probability": float(probability)},
+            # timestamp is auto-added
+        )
+        new_prediction.save()
 
 
-            # Optionally, you can serialize and return the new prediction
-            serializer = PatientPredictionSerializer(new_prediction)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Optionally, you can serialize and return the new prediction
+        serializer = PatientPredictionSerializer(new_prediction)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        except:
-            return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # except:
+        #     return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PatientPredictionView(APIView):
