@@ -5,3 +5,4 @@ xgboost
 django-cors-headers
 djangorestframework-simplejwt
 scikit-learn
+torch

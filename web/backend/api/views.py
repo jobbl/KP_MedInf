@@ -18,15 +18,33 @@ from datetime import datetime
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
+from .lstm import Net, batch, normalise_data
+import torch
 
 model_path = "models"
-loaded_model = XGBClassifier()
+
+xgb_model = XGBClassifier()
 try:
-    loaded_model.load_model(os.path.join(model_path, 'xgb_original.model'))
+    xgb_model.load_model(os.path.join(model_path, 'xgb_original.model'))
 except:
     print("Model not found, using dummy model")
     # initialize for 2 parameters
-    loaded_model.fit(np.array([[0, 0]]), np.array([0]))
+    xgb_model.fit(np.array([[0, 0]]), np.array([0]))
+    
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# LSTM parameters
+input_size = 30
+output_size = 1
+emb_size = round(input_size / 1)
+number_layers = 3
+dropout = 0
+bi_directional = True
+
+nn_model = Net(input_size, emb_size, output_size, bi_directional, number_layers, dropout).to(device)
+nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM_original.pth')))
+    
+use_xgb = True
 
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 4
@@ -197,21 +215,10 @@ class PredictView(APIView):
         # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
         # we now get the PatientFeature instance with this timestamp
         latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
-        print(latest_feature_instance)
-        print(latest_feature_instance.data)
-        # Extract the relevant features for prediction
-        # features = [
-        #     float(latest_feature_instance.data.get('creatinine_mean', 0)),
-        #     float(latest_feature_instance.data.get('bun_mean', 0)),
-        #     # Add more features as needed
-        # ]
-        # use all features
-        # drop charttime from features
+
         latest_feature_instance_cleaned = latest_feature_instance.data.copy()
         latest_feature_instance_cleaned.pop('charttime', None)
-        print(latest_feature_instance_cleaned)
         features = []
-        print(latest_feature_instance_cleaned)
         for key, value in latest_feature_instance_cleaned.items():
             try:
                 features.append(float(value))
@@ -222,8 +229,12 @@ class PredictView(APIView):
         print(features)
         # try:
         # Make prediction
-        prediction = loaded_model.predict([features])[0]
-        probability = loaded_model.predict_proba([features])[0][1]  # Probability of positive class
+        if use_xgb:
+            prediction = xgb_model.predict(np.array([features]))[0]
+            probability = xgb_model.predict_proba(np.array([features]))[0][1]
+        else:
+            pass
+            
 
         # Create and save the new PatientPrediction
         new_prediction = PatientPrediction(
