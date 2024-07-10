@@ -3,15 +3,40 @@ body, html, #root {
   margin: 0;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff; 
+  background-color: #ffffff; /* Ensure the entire page background is white */
 }
 
 .MuiContainer-root {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  padding: 0px;
+  background-color: #ffffff; /* Ensure containers have a white background */
 }
 
-.debug {
-  border: dashed red;
+.MuiDrawer-paper {
+  width: 240px;
+  box-sizing: border-box;
+  background-color: #dde7ed;
+}
+
+.table-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0px;
+}
+
+.table-header {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.patient-row {
+  cursor: pointer;
+}
+
+.patient-actions {
+  display: flex;
+  gap: 8px;
 }

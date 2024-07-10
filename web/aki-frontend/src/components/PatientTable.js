@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PatientContext } from '../PatientContext';
 import './PatientTable.css';
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Typography, IconButton, Tooltip } from '@mui/material';
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Typography, IconButton, Tooltip, TablePagination } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -22,9 +22,9 @@ const PatientTable = ({ searchQuery }) => {
   const patients = useContext(PatientContext);
   console.log(patients);
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('AKI-Score');
+  const [orderBy, setOrderBy] = useState('aki_score');
   const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const rowsPerPage = 5; // Set fixed number of rows per page
   const navigate = useNavigate();
 
   const handleRequestSort = (property) => {
@@ -67,18 +67,18 @@ const PatientTable = ({ searchQuery }) => {
             <TableRow>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'Nachname'}
-                  direction={orderBy === 'Nachname' ? order : 'asc'}
-                  onClick={() => handleRequestSort('Nachname')}
+                  active={orderBy === 'nachname'}
+                  direction={orderBy === 'nachname' ? order : 'asc'}
+                  onClick={() => handleRequestSort('nachname')}
                 >
                   Nachname
                 </CustomTableSortLabel>
               </TableCell>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'Vorname'}
-                  direction={orderBy === 'Vorname' ? order : 'asc'}
-                  onClick={() => handleRequestSort('Vorname')}
+                  active={orderBy === 'vorname'}
+                  direction={orderBy === 'vorname' ? order : 'asc'}
+                  onClick={() => handleRequestSort('vorname')}
                 >
                   Vorname
                 </CustomTableSortLabel>
@@ -86,36 +86,36 @@ const PatientTable = ({ searchQuery }) => {
               <TableCell className="table-header">m/w/d</TableCell>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'Geburtsdatum'}
-                  direction={orderBy === 'Geburtsdatum' ? order : 'asc'}
-                  onClick={() => handleRequestSort('Geburtsdatum')}
+                  active={orderBy === 'geburtsdatum'}
+                  direction={orderBy === 'geburtsdatum' ? order : 'asc'}
+                  onClick={() => handleRequestSort('geburtsdatum')}
                 >
                   Geb.-Dat.
                 </CustomTableSortLabel>
               </TableCell>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'Aufnahmedatum'}
-                  direction={orderBy === 'Aufnahmedatum' ? order : 'asc'}
-                  onClick={() => handleRequestSort('Aufnahmedatum')}
+                  active={orderBy === 'aufnahmedatum'}
+                  direction={orderBy === 'aufnahmedatum' ? order : 'asc'}
+                  onClick={() => handleRequestSort('aufnahmedatum')}
                 >
                   Aufn.-Dat.
                 </CustomTableSortLabel>
               </TableCell>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'ID-Nr'}
-                  direction={orderBy === 'ID-Nr' ? order : 'asc'}
-                  onClick={() => handleRequestSort('ID-Nr')}
+                  active={orderBy === 'id_nr'}
+                  direction={orderBy === 'id_nr' ? order : 'asc'}
+                  onClick={() => handleRequestSort('id_nr')}
                 >
                   ID-Nr
                 </CustomTableSortLabel>
               </TableCell>
               <TableCell className="table-header">
                 <CustomTableSortLabel
-                  active={orderBy === 'AKI-Score'}
-                  direction={orderBy === 'AKI-Score' ? order : 'asc'}
-                  onClick={() => handleRequestSort('AKI-Score')}
+                  active={orderBy === 'aki_score'}
+                  direction={orderBy === 'aki_score' ? order : 'asc'}
+                  onClick={() => handleRequestSort('aki_score')}
                 >
                   AKI-Score
                 </CustomTableSortLabel>
@@ -125,15 +125,15 @@ const PatientTable = ({ searchQuery }) => {
           </TableHead>
           <TableBody>
             {sortedPatients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((patient, index) => (
-              <TableRow key={index} className="patient-row" onClick={() => handleRowClick(patient['id_nr'])} style={{ cursor: 'pointer' }}>
-              <TableCell className="table-cell">{patient.nachname}</TableCell>
-              <TableCell className="table-cell">{patient.vorname}</TableCell>
-              <TableCell className="table-cell">{patient.geschlecht}</TableCell>
-              <TableCell className="table-cell">{patient.geburtsdatum}</TableCell>
-              <TableCell className="table-cell">{patient.aufnahmedatum}</TableCell>
-              <TableCell className="table-cell">{patient['id_nr']}</TableCell>
-              <TableCell className="table-cell">{patient['aki_score']}</TableCell>
-              <TableCell className="patient-actions">
+              <TableRow key={index} className="patient-row" onClick={() => handleRowClick(patient.id_nr)} style={{ cursor: 'pointer' }}>
+                <TableCell className="table-cell">{patient.nachname}</TableCell>
+                <TableCell className="table-cell">{patient.vorname}</TableCell>
+                <TableCell className="table-cell">{patient.geschlecht}</TableCell>
+                <TableCell className="table-cell">{patient.geburtsdatum}</TableCell>
+                <TableCell className="table-cell">{patient.aufnahmedatum}</TableCell>
+                <TableCell className="table-cell">{patient.id_nr}</TableCell>
+                <TableCell className="table-cell">{patient.aki_score}</TableCell>
+                <TableCell className="patient-actions">
                   <Tooltip title="Favorit">
                     <IconButton><StarIcon /></IconButton>
                   </Tooltip>
@@ -148,6 +148,15 @@ const PatientTable = ({ searchQuery }) => {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          rowsPerPageOptions={[]} // Remove rows per page options
+          component="div"
+          count={sortedPatients.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} von ${count}`}
+        />
       </TableContainer>
     </Container>
   );
