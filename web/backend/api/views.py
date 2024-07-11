@@ -41,6 +41,8 @@ number_layers = 3
 dropout = 0
 bi_directional = True
 
+predict_threshold = 0.5 
+
 nn_model = Net(input_size, emb_size, output_size, bi_directional, number_layers, dropout).to(device)
 nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM_original.pth')))
     
@@ -232,7 +234,13 @@ class PredictView(APIView):
         if use_xgb:
             prediction = xgb_model.predict(np.array([features]))[0]
             probability = xgb_model.predict_proba(np.array([features]))[0][1]
+            print(f"XGB prediction: {prediction}, probability: {probability}")
         else:
+            # todo add normalisation
+            features = torch.tensor([features]).float().to(device)
+            probability = nn_model(features).item()
+            prediction = 1 if probability > predict_threshold else 0
+            print(f"LSTM prediction: {prediction}")
             pass
             
 
