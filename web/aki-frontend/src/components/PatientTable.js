@@ -59,9 +59,9 @@ const PatientTable = ({ searchQuery }) => {
   };
 
   return (
-    <Container className="table-container">
+    <Container className="table-container" sx={{paddingLeft: 0 }}>
       <Typography variant="h6">Patientenübersicht</Typography>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{paddingLeft: 0 }}>
         <Table>
           <TableHead>
             <TableRow>
