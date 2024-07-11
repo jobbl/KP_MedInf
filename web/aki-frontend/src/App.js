@@ -6,8 +6,31 @@ import PatientDetail from './components/PatientDetail.js';
 import { PatientProvider } from './PatientContext.js';
 import { logoutUser } from './api.js';
 import PatientLabDetail from './components/PatientLabDetail';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import './App.css';
 
 console.log('App.js');
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5e9bb5',
+      contrastText: '#ffffff',
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: '#497588',
+          },
+        },
+      },
+    },
+  },
+});
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
