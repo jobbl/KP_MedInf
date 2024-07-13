@@ -3,15 +3,15 @@ body, html, #root {
   margin: 0;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff; /* Ensure the entire page background is white */
+  background-color: #ffffff; 
 }
 
 .MuiContainer-root {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  padding: 0px;
-  background-color: #ffffff; /* Ensure containers have a white background */
+  padding: 1px;
+  background-color: #ffffff; 
 }
 
 .MuiDrawer-paper {
@@ -28,7 +28,7 @@ body, html, #root {
 }
 
 .table-header {
-  background-color: #f0f0f0;
+  background-color: #ffffff;
   font-weight: bold;
 }
 
@@ -39,4 +39,13 @@ body, html, #root {
 .patient-actions {
   display: flex;
   gap: 8px;
+}
+
+.MuiButton-containedPrimary {
+  background-color: #5e9bb5 !important;
+  color: #FFFFFF;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #497588 !important;
 }
