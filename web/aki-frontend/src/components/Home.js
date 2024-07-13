@@ -56,21 +56,12 @@ function Home({ user, token, onLogout }) {
 
   return (
     <Layout user={user} onLogout={onLogout}>
-      <Container sx={{ mt: 4, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h4" component="h2" sx={{ mb: 2, alignSelf: 'flex-start' }}>Willkommen, {user.username}</Typography>
+      <Container sx={{ mt: 4, display: 'flex', flexDirection: 'column', paddingLeft: 0 }}>
+        <Typography variant="h4" component="h2" sx={{ mb: 2, ml: 3, alignSelf: 'flex-start' }}>Willkommen, {user.username}</Typography>
+        <TextField label="Suche Patienten" variant="outlined" fullWidth value={searchQuery} onChange={handleSearchChange} sx={{ mb: 0, ml: 3, width: '60%', alignSelf: 'flex-start' }} size="small" />
         
-        <TextField
-            label="Suche Patienten"
-            variant="outlined"
-            fullWidth
-            value={searchQuery}
-            onChange={handleSearchChange}
-            sx={{ mb: 0, width: '60%', alignSelf: 'flex-start' }} 
-            size="small" 
-          />
-        <Box sx={{ width: '100%', mt: 0,  }}>
-          <PatientTable searchQuery={searchQuery} />
-        </Box>
+        <PatientTable searchQuery={searchQuery} />
+        
         <Button variant="contained" onClick={handleOpen} sx={{ mt: 2, alignSelf: 'flex-start' }}>Neue Patienten hinzufügen</Button>
         <Modal open={open} onClose={handleClose}>
           <Box sx={{ ...style, width: 400 }}>

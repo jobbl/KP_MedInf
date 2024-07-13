@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Box, Typography, Button, IconButton, Tooltip, Grid, Switch } from '@mui/material'; // Import Switch here
+import { Container, Box, Typography, Button, IconButton, Grid, Switch } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import StarIcon from '@mui/icons-material/Star';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PatientContext } from '../PatientContext';
 import Layout from './Layout';
 import { createPatientFeatureFromFile, predictPatient, getPredictions } from '../api';
+import './PatientDetail.css';
 
 const PatientDetail = ({ user, token }) => {
   const { id } = useParams();
@@ -35,40 +35,37 @@ const PatientDetail = ({ user, token }) => {
     return <Typography variant="h6">Patient not found</Typography>;
   }
 
-  const handleBackClick = () => {
-    navigate('/home');
-  };
-
   const handleLabValuesClick = () => {
     navigate(`/patient/${id}/labdetails`, { state: { patient } });
   };
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
+  const handleFileChange = async (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
 
-  const handleAddLabValues = async () => {
-    if (!file) {
-      alert('Please select a CSV file first.');
-      return;
-    }
-
-    try {
-      const response = await createPatientFeatureFromFile(id, file, token);
-      alert('Lab values uploaded successfully!');
-      setRefreshKey(refreshKey + 1);
-    } catch (error) {
-      if (error.response) {
-        console.error('Error response:', error.response);
-        alert(`Error uploading lab values: ${error.response.data.error}`);
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        alert('Error uploading lab values: No response from server');
-      } else {
-        console.error('Error message:', error.message);
-        alert(`Error uploading lab values: ${error.message}`);
+    if (selectedFile) {
+      try {
+        const response = await createPatientFeatureFromFile(id, selectedFile, token);
+        alert('Lab values uploaded successfully!');
+        setRefreshKey(refreshKey + 1);
+      } catch (error) {
+        if (error.response) {
+          console.error('Error response:', error.response);
+          alert(`Error uploading lab values: ${error.response.data.error}`);
+        } else if (error.request) {
+          console.error('Error request:', error.request);
+          alert('Error uploading lab values: No response from server');
+        } else {
+          console.error('Error message:', error.message);
+          alert(`Error uploading lab values: ${error.message}`);
+        }
       }
     }
+  };
+
+  const handleAddLabValuesClick = () => {
+    const fileInput = document.getElementById('raised-button-file');
+    fileInput.click();
   };
 
   const handleNewPrediction = async () => {
@@ -83,30 +80,29 @@ const PatientDetail = ({ user, token }) => {
 
   return (
     <Layout user={user}>
-      <IconButton onClick={handleBackClick} className="back-button">
-        <ArrowBackIcon />
-      </IconButton>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h4">{patient.vorname} {patient.nachname}</Typography>
-            <Box>
-              <Typography variant="body1">{patient.geschlecht}</Typography>
+      <Container className="patient-detail-container" sx={{ mt: 4, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} className="patient-header" sx={{ mr: 3, alignSelf: 'flex-start' }}>
+            <Box className="patient-header-left" sx={{ mb: 2 }}>
+              <Typography variant="h4" sx={{ mr: 10 }}>{patient.vorname} {patient.nachname}</Typography>
+              <Typography variant="body1" sx={{ mr: 6 }}>Geschlecht: {patient.geschlecht}</Typography>
               <Typography variant="body1">ID-Nr: {patient['id_nr']}</Typography>
             </Box>
-            <Box>
-              <IconButton><NotificationsIcon /></IconButton>
+            <Box className="patient-header-icons">
               <IconButton><StarIcon /></IconButton>
+              <IconButton><NotificationsIcon /></IconButton>
             </Box>
-          </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Box className="patient-info">
-            <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
-            <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
-            <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
-            <Box display="flex" gap="1rem">
-              <Button variant="contained" onClick={handleLabValuesClick}>Laborwerte</Button>
+          </Grid>
+
+          <Grid item xs={12} className="patient-info" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
+            <Box className="patient-info-content">
+              <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
+              <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
+              <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
+              
+            </Box>
+            <Box className="labs-buttons">
+              <Button variant="contained" onClick={handleLabValuesClick}>alle Laborwerte anzeigen</Button>
               <input
                 accept=".csv"
                 style={{ display: 'none' }}
@@ -114,51 +110,46 @@ const PatientDetail = ({ user, token }) => {
                 type="file"
                 onChange={handleFileChange}
               />
-              <label htmlFor="raised-button-file">
-                <Button variant="contained" component="span">
-                  CSV-Datei auswählen
-                </Button>
-              </label>
-              <Button variant="contained" onClick={handleAddLabValues}>Neue Laborwerte hinzufügen</Button>
+              <Button variant="contained" component="span" onClick={handleAddLabValuesClick}>
+                Neue Laborwerte hinzufügen
+              </Button>
             </Box>
-            {file && (
+            {/*file && (
               <Typography variant="body2" style={{ marginTop: '10px' }}>
                 Selected file: {file.name}
               </Typography>
-            )}
-          </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Box className="aki-section">
-            <Typography variant="h5">AKI Prognosen</Typography>
-            <Typography variant="body2">nächste Prognose: 05.06.2024, 13:00</Typography>
-            <Box display="flex" gap="1rem">
-              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose</Button>
+            )*/}
+          </Grid>
+          <Grid item xs={12} className="aki-section" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
+            <Box className="aki-section-header">
+              <Typography variant="h5">Aktuelle AKI-Prognose</Typography>
+              {/* <Switch />
+              <Typography>CDSS</Typography> */}
             </Box>
             <Box className="prognosis-overview">
-              <Typography variant="body2">Prognosenübersicht</Typography>
+              <Typography variant="body2">nächste automatische Prognose um 18:00 Uhr</Typography>
               {predictions.map((prediction, index) => (
                 <Box className="prognosis-row" key={index}>
                   <Typography>{(prediction.prediction.probability * 100).toFixed(0)}%</Typography>
                   <Typography>{new Date(prediction.timestamp).toLocaleString()}</Typography>
-                  <Typography>{prediction.manual ? 'Ja' : 'Nein'}</Typography>
+                  <Typography>{prediction.manual ? 'Prognose gestartet von Dr Müller' : 'Automatische Prognose'}</Typography>
                 </Box>
               ))}
             </Box>
             <Box className="comments-section">
-              <Typography variant="h6">Kommentare</Typography>
-              <Typography variant="body2">Letzte Prognose nachvollziehbar. Empfehle präventive Maßnahmen.</Typography>
-              <Typography variant="body2">Professor Lebergut, 29.04.2024, 15:34</Typography>
-              <Typography variant="body2">Was halten sie vom Prognoseverlauf?</Typography>
-              <Typography variant="body2">Dr Dietrich, 29.04.2024, 11:46</Typography>
+              {/* <Typography variant="h6">Kommentare</Typography>
+              <Box className="comments-list">
+                <Typography variant="body2">Letzte Prognose nachvollziehbar. Empfehle präventive Maßnahmen. <br /> Professor Lebergut, 25.04.2024, 15:34</Typography>
+                <Typography variant="body2">Was halten sie vom Prognoseverlauf? <br /> Dr Dietrich, 24.04.2024, 11:46</Typography>
+              </Box> */}
             </Box>
-            <Box display="flex" alignItems="center" gap="1rem">
-              <Switch />
-              <Typography>CDSS</Typography>
+            <Box className="cdss-switch">
+              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
+              <Button variant="contained">Prognose-Verlauf anzeigen</Button>
             </Box>
-          </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </Container>
     </Layout>
   );
 };

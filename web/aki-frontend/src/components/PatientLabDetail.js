@@ -64,10 +64,7 @@ const PatientLabDetail = ({ user, token }) => {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <Sidebar user={user} />
-      <Container className="patient-lab-detail-container">
-        <IconButton onClick={handleBackClick} className="back-button">
-          <ArrowBackIcon />
-        </IconButton>
+      <Container className="patient-lab-detail-container" sx={{ mt: 4, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
