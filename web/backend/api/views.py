@@ -105,6 +105,12 @@ class PatientListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    # delete patient
+    def delete(self, request, patient_id):
+        patient = get_object_or_404(Patient, patient_id=patient_id, user=request.user)
+        patient.delete()
+        return Response({"success": "Patient deleted."}, status=status.HTTP_204_NO_CONTENT)
+
 class PatientFeatureCreateView(generics.CreateAPIView):
     queryset = PatientFeature.objects.all()
     serializer_class = PatientFeatureSerializer

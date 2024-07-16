@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PatientContext } from '../PatientContext';
 import './PatientTable.css';
@@ -7,6 +7,7 @@ import StarIcon from '@mui/icons-material/Star';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
+import { deletePatient } from '../api'; 
 
 const CustomTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
   '& .MuiTableSortLabel-icon': {
@@ -18,14 +19,18 @@ const CustomTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
   }
 }));
 
-const PatientTable = ({ searchQuery }) => {
-  const patients = useContext(PatientContext);
-  console.log(patients);
+const PatientTable = ({ searchQuery, patients }) => {
+  // const patients = useContext(PatientContext);
+  const [patientList, setPatientList] = useState([]);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('aki_score');
   const [page, setPage] = useState(0);
   const rowsPerPage = 5; // Set fixed number of rows per page
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPatientList(patients);
+  }, [patients]);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -43,7 +48,7 @@ const PatientTable = ({ searchQuery }) => {
     return 0;
   };
 
-  const filteredPatients = patients.filter(patient =>
+  const filteredPatients = patientList.filter(patient =>
     patient.nachname.toLowerCase().includes(searchQuery.toLowerCase()) ||
     patient.vorname.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -56,6 +61,15 @@ const PatientTable = ({ searchQuery }) => {
 
   const handleRowClick = (id) => {
     navigate(`/patient/${id}`);
+  };
+
+  const handleDeletePatient = async (id) => {
+    try {
+      await deletePatient(id);
+      setPatientList(prevList => prevList.filter(patient => patient.id_nr !== id));
+    } catch (error) {
+      console.error('Failed to delete patient:', error);
+    }
   };
 
   return (
@@ -141,7 +155,9 @@ const PatientTable = ({ searchQuery }) => {
                     <IconButton><NotificationsIcon /></IconButton>
                   </Tooltip>
                   <Tooltip title="Löschen">
-                    <IconButton><DeleteIcon /></IconButton>
+                    <IconButton onClick={(e) => { e.stopPropagation(); handleDeletePatient(patient.id_nr); }}>
+                      <DeleteIcon />
+                    </IconButton>
                   </Tooltip>
                 </TableCell>
               </TableRow>

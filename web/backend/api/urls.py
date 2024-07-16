@@ -12,4 +12,5 @@ urlpatterns = [
     path('upload_patients/', PatientCSVUploadView.as_view(), name='upload_patients'),
     path('patients/<int:patient_id>/lab_values/', LabValuesListView.as_view(), name='lab-values-list'),
     path('patients/<int:patient_id>/predictions/', PatientPredictionView.as_view(), name='patient-predictions'),
+    path('patients/<int:patient_id>/', PatientListView.as_view(), name='patient-delete'),
 ]

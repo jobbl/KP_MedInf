@@ -78,6 +78,11 @@ export const uploadPatients = (file) => {
   });
 };
 
+// delete patient
+export const deletePatient = (patientId) => {
+  return api.delete(`/patients/${patientId}/`);
+};
+
 // Predict based on patient features
 export const predictPatient = (patientId) => {
   return api.post(`/predict/${patientId}/`);
