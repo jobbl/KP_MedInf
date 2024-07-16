@@ -30,7 +30,7 @@ const Sidebar = ({ user, onLogout }) => {
             {user ? user.name : 'Benutzer'}
           </Typography>
         </Toolbar>
-        <List>
+        {/* <List>
           {['Systemmeldung', 'Systemmeldung', 'Systemmeldung'].map((text, index) => (
             <ListItem button key={text}>
               <ListItemIcon>
@@ -39,11 +39,11 @@ const Sidebar = ({ user, onLogout }) => {
               <ListItemText primary={text} />
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Box>
       <Box sx={{ mb: 3, px: 2 }}>
         <Button variant="contained" sx={{ backgroundColor: '#5e9bb5', '&:hover': { backgroundColor: '#497588' } }} onClick={onLogout} fullWidth>
-          Logout
+          Ausloggen
         </Button>
       </Box>
     </Drawer>

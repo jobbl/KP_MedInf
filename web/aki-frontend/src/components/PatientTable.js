@@ -25,7 +25,7 @@ const PatientTable = ({ searchQuery, patients }) => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('aki_score');
   const [page, setPage] = useState(0);
-  const rowsPerPage = 5; // Set fixed number of rows per page
+  const rowsPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -165,7 +165,7 @@ const PatientTable = ({ searchQuery, patients }) => {
           </TableBody>
         </Table>
         <TablePagination
-          rowsPerPageOptions={[]} // Remove rows per page options
+          rowsPerPageOptions={[]} 
           component="div"
           count={sortedPatients.length}
           rowsPerPage={rowsPerPage}
