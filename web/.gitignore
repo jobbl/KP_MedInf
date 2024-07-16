@@ -1,6 +1,0 @@
-backend/venv
-backend/api/migrations
-aki-frontend/node_modules
-venv
-scikit-learn
-backend/db.sqlite3
