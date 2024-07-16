@@ -1,12 +1,48 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Box, Typography, Button, IconButton, Grid, Switch } from '@mui/material';
+import { Container, Box, Typography, Button, IconButton, Grid, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import StarIcon from '@mui/icons-material/Star';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getLabValues } from '../api';
 import { PatientContext } from '../PatientContext';
 import Layout from './Layout';
 import { createPatientFeatureFromFile, predictPatient, getPredictions } from '../api';
 import './PatientDetail.css';
+
+const attributeDisplayNames = {
+  'albumin_mean': 'Albumin <br /> in g/dL',
+  'aniongap_mean': 'Anionenlücke',
+  'bands_mean': 'Granulozyten',
+  'bicarbonate_mean': 'Bicarbonat',
+  'bilirubin_mean': 'Bilirubin',
+  'bun_mean': 'Harnstoff',
+  'calcium': 'Calcium',
+  'chloride_mean': 'Chlorid',
+  'creat': 'Kreatinin',
+  'glucose': 'Glukose',
+  'hematocrit_mean': 'Hämatokrit',
+  'hemoglobin_mean': 'Hämoglobin',
+  'inr_mean': 'INR',
+  'lactate_mean': 'Laktat',
+  'phosphate_mean': 'Phosphat',
+  'platelet_mean': 'Thrombozyten',
+  'potassium_mean': 'Kalium',
+  'pt_mean': 'PT',
+  'ptt_mean': 'PTT',
+  'resprate_mean': 'Atemfrequenz',
+  'sodium_mean': 'Natrium',
+  'uric_acid_mean': 'Harnsäure',
+  'wbc_mean': 'Leukozyten',
+  'blood_pressure': 'DIAST.RR/SYST.RR',
+  'heartrate_mean': 'Herzfrequenz',
+  'spo2_mean': 'SPO2',
+  'meanbp_mean': 'MAP',
+  'tempc_mean': 'Körpertemperatur',
+  'uo_rt_6hr': 'Urinausfuhrrate (6h)',
+  'uo_rt_12hr': 'Urinoutput (12h)',
+  'uo_rt_24hr': 'Urinoutput (24h)'
+};
 
 const PatientDetail = ({ user, token }) => {
   const { id } = useParams();
@@ -15,6 +51,9 @@ const PatientDetail = ({ user, token }) => {
   const [file, setFile] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [labValues, setLabValues] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const patient = patients.find(patient => patient['id_nr'] == id);
 
@@ -31,12 +70,36 @@ const PatientDetail = ({ user, token }) => {
     fetchPredictions();
   }, [id, token, refreshKey]);
 
+  useEffect(() => {
+    const fetchLabValues = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getLabValues(id, token);
+        const sortedLabValues = response.data.sort((a, b) =>
+          new Date(b.data.charttime) - new Date(a.data.charttime)
+        );
+        setLabValues(sortedLabValues);
+      } catch (error) {
+        console.error("Failed to fetch lab values:", error);
+        setError("Failed to load lab values. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLabValues();
+  }, [id, token]);
+
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
   }
 
   const handleLabValuesClick = () => {
     navigate(`/patient/${id}/labdetails`, { state: { patient } });
+  };
+
+  const handleAddLabValuesClick = () => {
+    const fileInput = document.getElementById('raised-button-file');
+    fileInput.click();
   };
 
   const handleFileChange = async (event) => {
@@ -63,10 +126,22 @@ const PatientDetail = ({ user, token }) => {
     }
   };
 
-  const handleAddLabValuesClick = () => {
-    const fileInput = document.getElementById('raised-button-file');
-    fileInput.click();
-  };
+  const labAttributes = [
+    'albumin_mean', 'aniongap_mean', 'bands_mean', 'bicarbonate_mean', 'bilirubin_mean',
+    'bun_mean', 'calcium', 'chloride_mean', 'creat',
+    'glucose', 'hematocrit_mean',
+    'hemoglobin_mean', 'inr_mean', 'lactate_mean', 'phosphate_mean',
+    'platelet_mean', 'potassium_mean', 'pt_mean', 'ptt_mean', 'resprate_mean',
+    'sodium_mean', 'uric_acid_mean', 'wbc_mean'
+  ];
+
+  const vitalAttributes = [
+    'blood_pressure', 'heartrate_mean', 'spo2_mean', 'meanbp_mean', 'tempc_mean'
+  ]
+
+  const balancingAttributes = [
+    'uo_rt_6hr', 'uo_rt_12hr', 'uo_rt_24hr'
+  ]
 
   const handleNewPrediction = async () => {
     try {
@@ -99,10 +174,10 @@ const PatientDetail = ({ user, token }) => {
               <Typography variant="body1">Geburtsdatum: {patient.geburtsdatum}</Typography>
               <Typography variant="body1">Aufnahmedatum: {patient.aufnahmedatum}</Typography>
               <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
-              
+
             </Box>
             <Box className="labs-buttons">
-              <Button variant="contained" onClick={handleLabValuesClick}>alle Laborwerte anzeigen</Button>
+              {/* <Button variant="contained" onClick={handleLabValuesClick}>alle Laborwerte anzeigen</Button> */}
               <input
                 accept=".csv"
                 style={{ display: 'none' }}
@@ -119,6 +194,131 @@ const PatientDetail = ({ user, token }) => {
                 Selected file: {file.name}
               </Typography>
             )*/}
+          </Grid>
+          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">Laborwerte</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {isLoading ? (
+                  <Typography variant="h6">Laborwerte werden geladen...</Typography>
+                ) : error ? (
+                  <Typography variant="h6" color="error">{error}</Typography>
+                ) : (
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell></TableCell>
+                          {labValues.map((labValue, index) => (
+                            <TableCell key={index}>{new Date(labValue.data.charttime).toLocaleDateString()}</TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {labAttributes.map((attr) => (
+                          <TableRow key={attr}>
+                            <TableCell dangerouslySetInnerHTML={{ __html: attributeDisplayNames[attr] }} />
+                            {labValues.map((labValue, index) => (
+                              <TableCell key={index}>
+                                {attr === 'glucose'
+                                  ? labValue.data['glucose_mean_x'] || labValue.data['glucose_mean_y']
+                                    ? labValue.data['glucose_mean_x'] || labValue.data['glucose_mean_y']
+                                    : ''
+                                  : (labValue.data[attr] ? labValue.data[attr] : '')}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">Vitalwerte</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {isLoading ? (
+                  <Typography variant="h6">Vitalwerte werden geladen...</Typography>
+                ) : error ? (
+                  <Typography variant="h6" color="error">{error}</Typography>
+                ) : (
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell></TableCell>
+                          {labValues.map((labValue, index) => (
+                            <TableCell key={index}>{new Date(labValue.data.charttime).toLocaleDateString()}</TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {vitalAttributes.map((attr) => (
+                          <TableRow key={attr}>
+                            <TableCell>{attributeDisplayNames[attr]}</TableCell>
+                            {labValues.map((labValue, index) => (
+                              <TableCell key={index}>
+                                {attr === 'blood_pressure'
+                                  ? labValue.data['diasbp_mean'] && labValue.data['sysbp_mean']
+                                    ? `${labValue.data['diasbp_mean']}/${labValue.data['sysbp_mean']}`
+                                    : ''
+                                  : (labValue.data[attr] ? labValue.data[attr] : '')}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">Bilanzierung</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {isLoading ? (
+                  <Typography variant="h6">Bilanzierungswerte werden geladen...</Typography>
+                ) : error ? (
+                  <Typography variant="h6" color="error">{error}</Typography>
+                ) : (
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell></TableCell>
+                          {labValues.map((labValue, index) => (
+                            <TableCell key={index}>{new Date(labValue.data.charttime).toLocaleDateString()}</TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {balancingAttributes.map((attr) => (
+                          <TableRow key={attr}>
+                            <TableCell>{attr.replace(/_/g, ' ').toUpperCase()}</TableCell>
+                            {labValues.map((labValue, index) => (
+                              <TableCell key={index}>
+                                {labValue.data[attr] ? labValue.data[attr] : ''}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </AccordionDetails>
+            </Accordion>
           </Grid>
           <Grid item xs={12} className="aki-section" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
             <Box className="aki-section-header">
