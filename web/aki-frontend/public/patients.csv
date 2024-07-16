@@ -1,0 +1,7 @@
+Vorname,Nachname,Geschlecht,Geburtsdatum,Aufnahmedatum,ID-Nr,AKI-Score,Diagnose
+Klaus,Wagner,m,1964-09-30,2024-04-23,57331,81,Sepsis
+Ingrid,Fischer,w,1953-02-14,2024-04-20,40028,77,Hepatorenales Syndrom
+Renate,Becker,w,1949-12-05,2024-04-12,95644,62,Akute Pyelonephritis
+Helena,Schmidt,w,1972-05-08,2024-04-13,90847,46,Akute Herzinsuffizienz
+
+
