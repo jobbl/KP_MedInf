@@ -18,8 +18,9 @@ from datetime import datetime
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
-from .lstm import Net, batch, normalise_data
+from .lstm import Net, normalise_data_with_parameters, batch_predict
 import torch
+import pandas as pd
 
 model_path = "models"
 
@@ -44,9 +45,10 @@ bi_directional = True
 predict_threshold = 0.5 
 
 nn_model = Net(input_size, emb_size, output_size, bi_directional, number_layers, dropout).to(device)
-nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM_original.pth')))
-    
-use_xgb = True
+nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM/LSTM_best.pth'))['model_state_dict'])
+normalisation_parameters_array = np.load(os.path.join(model_path, 'LSTM/normalization_parameters.npy'), allow_pickle=True) 
+normalisation_parameters = normalisation_parameters_array.item() if normalisation_parameters_array.shape == () else normalisation_parameters_array.tolist()
+use_xgb = False
 
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 4
@@ -214,40 +216,92 @@ class PredictView(APIView):
         # Ensure the patient exists and belongs to the user making the request
         patient = get_object_or_404(Patient, patient_id=patient_id, user=request.user)
 
-        # Get the latest PatientFeature entry for this patient by ordering by a timestamp field
-        latest_feature = PatientFeature.objects.filter(patient=patient).aggregate(Max('data__charttime'))
-
-        if not latest_feature['data__charttime__max']:
-            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
-
-        # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
-        # we now get the PatientFeature instance with this timestamp
-        latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
-
-        latest_feature_instance_cleaned = latest_feature_instance.data.copy()
-        latest_feature_instance_cleaned.pop('charttime', None)
-        features = []
-        for key, value in latest_feature_instance_cleaned.items():
-            try:
-                features.append(float(value))
-            except:
-                features.append(0)
-        
-        print(len(features))
-        print(features)
-        # try:
-        # Make prediction
         if use_xgb:
+            # Get the latest PatientFeature entry for this patient by ordering by a timestamp field
+            latest_feature = PatientFeature.objects.filter(patient=patient).aggregate(Max('data__charttime'))
+
+            if not latest_feature['data__charttime__max']:
+                return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
+            # we now get the PatientFeature instance with this timestamp
+            latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
+
+            latest_feature_instance_cleaned = latest_feature_instance.data.copy()
+            latest_feature_instance_cleaned.pop('charttime', None)
+            features = []
+            for key, value in latest_feature_instance_cleaned.items():
+                try:
+                    features.append(float(value))
+                except:
+                    features.append(0)
+            
+            print(len(features))
+            print(features)
+            # try:
+            # Make prediction
             prediction = xgb_model.predict(np.array([features]))[0]
             probability = xgb_model.predict_proba(np.array([features]))[0][1]
             print(f"XGB prediction: {prediction}, probability: {probability}")
         else:
-            # todo add normalisation
-            features = torch.tensor([features]).float().to(device)
-            probability = nn_model(features).item()
-            prediction = 1 if probability > predict_threshold else 0
+            # Fetch data and convert to a list of dictionaries
+            data_list = list(PatientFeature.objects.filter(patient=patient).order_by('data__charttime').values('data'))
+            # Convert the list of dictionaries to a DataFrame
+            # Extract 'data' dictionaries from the list
+            data_dicts = [item['data'] for item in data_list]
+            # print(data_dicts)
+
+            # Convert the list of 'data' dictionaries to a DataFrame
+            X = pd.DataFrame(data_dicts)
+
+            # Convert 'charttime' to datetime and set as index if needed
+            print(X.columns)
+            # Ensure 'charttime' and 'icustay_id' are in the DataFrame and set 'charttime' as the index
+            X['charttime'] = pd.to_datetime(X['charttime'])  # Adjust column name if necessary
+            X = X.set_index('charttime')
+            # Before resampling and calculating the mean
+            # Convert columns that should be numeric but are stored as strings
+            for column in X.columns:
+                try:
+                    X[column] = pd.to_numeric(X[column], errors='coerce')
+                except ValueError:
+                    # This column might be non-numeric and not intended for conversion, so we pass
+                    pass
+
+            # Now that we've attempted to convert all columns to numeric types where applicable,
+            # we can proceed with resampling and calculating the mean
+            SAMPLING_INTERVAL = '6h'  # Adjusted to lowercase 'h' as per the deprecation warning
+            X = X.resample(SAMPLING_INTERVAL).mean()  # Proceed as before
+            # fill nan values with 0
+            X = X.fillna(0)
+            # Normalize data    
+            X_predict = normalise_data_with_parameters(X, normalisation_parameters)
+            # Assuming X_predict is your DataFrame after normalization and has the shape (12, number_of_features)
+            # features = np.array(X_predict.values)  # Convert DataFrame to numpy array
+            # features = features.reshape(1, 12, -1)  # Reshape to (1, 12, number_of_features)
+            # features_tensor = torch.tensor(features).float().to(device)  # Convert to tensor and send to device
+            
+            # Usage example:
+            # Assuming X_predict is your DataFrame with shape (12, number_of_features)
+            features = np.array(X_predict.values)  # Convert DataFrame to numpy array
+            features_tensor = batch_predict(features).to(device)  # Batch and convert to tensor
+            print(features_tensor.shape)
+            probability = nn_model(features_tensor)  # Predict
+            print(probability)
+            prediction = torch.sigmoid(probability) > predict_threshold  # Apply threshold
+
+            # # Batch data in the form of (1, patient, feature rows ordered by time)
+            # print(X_predict)
+            # features = np.array(X_predict.values)
+            # print(features)
+            # features = torch.tensor([features]).float().to(device)
+            # print(features_tensor.shape)
+            # probability = nn_model(features_tensor)
+            # print(probability)
+            # predicted = torch.sigmoid(probability) > predict_threshold
+            # print(predicted)
+
             print(f"LSTM prediction: {prediction}")
-            pass
             
 
         # Create and save the new PatientPrediction

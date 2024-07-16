@@ -19,7 +19,6 @@ def cap_data(df):
  
     
 def normalise_data(df, norm_mask):
-    print("Normalizing in [0,1] with {} normalization".format(NORMALIZATION))
     
     min_values = df[norm_mask].min()
     max_values = df[norm_mask].max()
@@ -32,6 +31,19 @@ def normalise_data(df, norm_mask):
     normalization_parameters = {column: {'min': min_values[column], 'max': max_values[column]} for column in norm_mask}
     
     return df, normalization_parameters
+
+def normalise_data_with_parameters(df, normalization_parameters):
+    # Skip normalization for constant columns
+    print(df.columns)
+    print(normalization_parameters)
+    print(type(normalization_parameters))
+    
+    for column in normalization_parameters:
+        print(column)
+        if normalization_parameters[column]['min'] != normalization_parameters[column]['max']:
+            df[column] = (df[column] - normalization_parameters[column]['min']) / (normalization_parameters[column]['max'] - normalization_parameters[column]['min'])
+            
+    return df
 
 
 # impute missing value in resampleing data with most common based on each id
@@ -140,6 +152,13 @@ def batch(data, batch_size):
     if len(X_batches) != len(y_batches):
         print("length error")
     return X_batches, y_batches # arrays
+
+def batch_predict(data):
+    # Assuming data is your features in the shape of (12, number_of_features)
+    # Since batch size is 1, we don't need to loop through the data
+    temp = data.reshape(1, data.shape[0], -1)  # Reshape to (1, 12, number_of_features)
+    x = torch.from_numpy(temp).float() # Convert to tensor and send to device
+    return x  # Return the batched tensor ready for prediction
 
 class Net(nn.Module):
     def __init__(self, input_size, emb_size, output_size, bi_directional, number_layers, dropout):
