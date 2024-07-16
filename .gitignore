@@ -1,4 +1,15 @@
-load_modules.sh
+# Ignore Mac system files
 .DS_Store
+
+# Ignore all Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore all .pyc files
 *.pyc
+
+# Ignore the entire pycache directory
 **/__pycache__/
+
+# Ignore specific files you mentioned
+load_modules.sh
