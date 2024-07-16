@@ -77,7 +77,7 @@
   border-radius: 4px;
 }
 
-.comments-section {
+/* .comments-section {
   margin-top: 1rem;
 }
 
@@ -92,4 +92,23 @@
   align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
+} */
+
+.MuiAccordion-root {
+  margin-bottom: 1.5rem;
+}
+
+.MuiAccordionSummary-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patient-row {
+  height: 30px; 
+}
+
+.values-row .MuiTableCell-root {
+  padding: 4px 8px;
+  height: 30px;
 }
