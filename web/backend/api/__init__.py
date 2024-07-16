@@ -1,1 +1,0 @@
-default_app_config = 'ml_backend.apps.api.ApiConfig'
