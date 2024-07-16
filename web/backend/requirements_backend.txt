@@ -1,0 +1,9 @@
+django
+djangorestframework
+numpy
+xgboost
+django-cors-headers
+djangorestframework-simplejwt
+scikit-learn
+torch
+pandas
