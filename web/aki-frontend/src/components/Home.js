@@ -60,7 +60,7 @@ function Home({ user, token, onLogout }) {
         <Typography variant="h4" component="h2" sx={{ mb: 2, ml: 3, alignSelf: 'flex-start' }}>Willkommen, {user.username}</Typography>
         <TextField label="Suche Patienten" variant="outlined" fullWidth value={searchQuery} onChange={handleSearchChange} sx={{ mb: 0, ml: 3, width: '60%', alignSelf: 'flex-start' }} size="small" />
         
-        <PatientTable searchQuery={searchQuery} patients={patients} />
+        <PatientTable searchQuery={searchQuery} patients={patients} token={token} />
         
         <Button variant="contained" onClick={handleOpen} sx={{ mt: 2, alignSelf: 'flex-start' }}>Neue Patienten hinzufügen</Button>
         <Modal open={open} onClose={handleClose}>

@@ -7,7 +7,7 @@ import StarIcon from '@mui/icons-material/Star';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
-import { deletePatient } from '../api'; 
+import { deletePatient, getPredictions } from '../api'; 
 
 const CustomTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
   '& .MuiTableSortLabel-icon': {
@@ -19,8 +19,7 @@ const CustomTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
   }
 }));
 
-const PatientTable = ({ searchQuery, patients }) => {
-  // const patients = useContext(PatientContext);
+const PatientTable = ({ searchQuery, patients, token }) => {
   const [patientList, setPatientList] = useState([]);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('aki_score');
@@ -31,6 +30,34 @@ const PatientTable = ({ searchQuery, patients }) => {
   useEffect(() => {
     setPatientList(patients);
   }, [patients]);
+
+  useEffect(() => {
+    const fetchPredictions = async () => {
+      const patientsWithPredictions = await Promise.all(
+        patients.map(async (patient) => {
+          try {
+            const response = await getPredictions(patient.id_nr, token);
+            const predictions = response.data;
+            const latestPrediction = predictions.length > 0 
+              ? predictions.reduce((latest, current) => 
+                  new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
+                )
+              : null;
+            return {
+              ...patient,
+              aki_score: latestPrediction ? latestPrediction.prediction.probability : 'N/A'
+            };
+          } catch (error) {
+            console.error(`Failed to fetch predictions for patient ${patient.id_nr}:`, error);
+            return { ...patient, aki_score: 'Error' };
+          }
+        })
+      );
+      setPatientList(patientsWithPredictions);
+    };
+    fetchPredictions();
+  }, [patients, token]);
+  
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -146,7 +173,11 @@ const PatientTable = ({ searchQuery, patients }) => {
                 <TableCell className="table-cell">{patient.geburtsdatum}</TableCell>
                 <TableCell className="table-cell">{patient.aufnahmedatum}</TableCell>
                 <TableCell className="table-cell">{patient.id_nr}</TableCell>
-                <TableCell className="table-cell">{patient.aki_score}</TableCell>
+                <TableCell className="table-cell">
+                  {typeof patient.aki_score === 'number' 
+                    ? `${(patient.aki_score * 100).toFixed(2)}%` 
+                    : patient.aki_score}
+                </TableCell>
                 <TableCell className="patient-actions">
                   <Tooltip title="Favorit">
                     <IconButton><StarIcon /></IconButton>
