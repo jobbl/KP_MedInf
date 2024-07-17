@@ -45,7 +45,7 @@ bi_directional = True
 predict_threshold = 0.5 
 
 nn_model = Net(input_size, emb_size, output_size, bi_directional, number_layers, dropout).to(device)
-nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM/LSTM_best.pth'))['model_state_dict'])
+nn_model.load_state_dict(torch.load(os.path.join(model_path, 'LSTM/LSTM_best.pth'), map_location = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'))['model_state_dict'])
 normalisation_parameters_array = np.load(os.path.join(model_path, 'LSTM/normalization_parameters.npy'), allow_pickle=True) 
 normalisation_parameters = normalisation_parameters_array.item() if normalisation_parameters_array.shape == () else normalisation_parameters_array.tolist()
 use_xgb = False
