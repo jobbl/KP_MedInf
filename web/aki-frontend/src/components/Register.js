@@ -6,7 +6,7 @@ const MIN_USERNAME_LENGTH = 4; // Define minimum length for username
 const MIN_PASSWORD_LENGTH = 4; // Define minimum length for password
 
 const Register = ({ onRegister, onClose }) => {
-  const [name, setName] = useState('');
+  // const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); // State to hold error message
@@ -22,7 +22,7 @@ const Register = ({ onRegister, onClose }) => {
       setError(`Passwort muss mindestens ${MIN_PASSWORD_LENGTH} Zeichen lang sein.`);
       return;
     }
-    onRegister(name, username, password);
+    onRegister(null, username, password);
     onClose();  
   };
 
@@ -35,12 +35,12 @@ const Register = ({ onRegister, onClose }) => {
       >
         <Typography variant="h4" component="h1">Neues Benutzerkonto anlegen</Typography>
         {error && <Alert severity="error">{error}</Alert>} {/* Display error message if any */}
-        <TextField
+        {/* <TextField
           label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-        />
+        /> */}
         <TextField
           label="Benutzername"
           value={username}

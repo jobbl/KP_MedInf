@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 class Patient(models.Model):
     patient_id = models.CharField(null=True, max_length=100, unique=True, default=0)
-    # user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     nachname = models.CharField(null=True, max_length=100)
     vorname = models.CharField(null=True, max_length=100)
     geschlecht = models.CharField(null=True, max_length=10)
