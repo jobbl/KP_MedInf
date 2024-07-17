@@ -65,18 +65,6 @@ class RegisterView(APIView):
         user = User.objects.create_user(username=username, password=password)
         return Response({"user": UserSerializer(user).data})
 
-# class LoginView(APIView):
-#     def post(self, request):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-#         user = authenticate(request, username=username, password=password)
-#         if user:
-#             login(request, user)
-#             return Response({"user": UserSerializer(user).data})
-#         return Response({"error": "Invalid credentials"}, status=400)
-    
-# from rest_framework_simplejwt.tokens import RefreshToken
-
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -102,14 +90,14 @@ class PatientListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Patient.objects.filter(user=self.request.user)
+        return Patient.objects.filter()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save()
 
     # delete patient
     def delete(self, request, patient_id):
-        patient = get_object_or_404(Patient, patient_id=patient_id, user=request.user)
+        patient = get_object_or_404(Patient, patient_id=patient_id)
         patient.delete()
         return Response({"success": "Patient deleted."}, status=status.HTTP_204_NO_CONTENT)
 
@@ -117,8 +105,6 @@ class PatientFeatureCreateView(generics.CreateAPIView):
     queryset = PatientFeature.objects.all()
     serializer_class = PatientFeatureSerializer
     permission_classes = [IsAuthenticated]
-
-
 
 class PatientCSVUploadView(APIView):
     parser_classes = [MultiPartParser]
@@ -132,8 +118,6 @@ class PatientCSVUploadView(APIView):
         if not file_obj.name.endswith('.csv'):
             return Response({"error": "Invalid file format. Please upload a CSV file."}, status=400)
 
-        user = request.user 
-
         try:
             decoded_file = StringIO(file_obj.read().decode('utf-8'))
             reader = csv.DictReader(decoded_file)
@@ -141,7 +125,7 @@ class PatientCSVUploadView(APIView):
             for row in reader:
                 try:
                     Patient.objects.create(
-                        user=user,
+                        # user=user,
                         patient_id=row['ID-Nr'],  # Make sure this column exists in your CSV
                         nachname=row['Nachname'],
                         vorname=row['Vorname'],
@@ -178,8 +162,6 @@ class PatientFeatureUploadView(APIView):
         if not file_obj.name.endswith('.csv'):
             return Response({"error": "Invalid file format. Please upload a CSV file."}, status=400)
 
-        user = request.user 
-
         try:
             decoded_file = StringIO(file_obj.read().decode('utf-8'))
             reader = csv.DictReader(decoded_file)
@@ -187,7 +169,7 @@ class PatientFeatureUploadView(APIView):
             for row in reader:
                 try:
                     timestamp=row['charttime']
-                    patient = Patient.objects.get(patient_id=patient_id, user=user)
+                    patient = Patient.objects.get(patient_id=patient_id)
                     PatientFeature.objects.create(
                         patient=patient,
                         patient_id_original=patient_id,
@@ -214,7 +196,7 @@ class PredictView(APIView):
 
     def post(self, request, patient_id):
         # Ensure the patient exists and belongs to the user making the request
-        patient = get_object_or_404(Patient, patient_id=patient_id, user=request.user)
+        patient = get_object_or_404(Patient, patient_id=patient_id)
 
         if use_xgb:
             # Get the latest PatientFeature entry for this patient by ordering by a timestamp field
@@ -223,8 +205,6 @@ class PredictView(APIView):
             if not latest_feature['data__charttime__max']:
                 return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
 
-            # Assuming 'data__charttime__max' gives us the timestamp of the latest feature, 
-            # we now get the PatientFeature instance with this timestamp
             latest_feature_instance = PatientFeature.objects.filter(patient=patient, data__charttime=latest_feature['data__charttime__max']).first()
 
             latest_feature_instance_cleaned = latest_feature_instance.data.copy()
@@ -249,7 +229,6 @@ class PredictView(APIView):
             # Convert the list of dictionaries to a DataFrame
             # Extract 'data' dictionaries from the list
             data_dicts = [item['data'] for item in data_list]
-            # print(data_dicts)
 
             # Convert the list of 'data' dictionaries to a DataFrame
             X = pd.DataFrame(data_dicts)
@@ -276,30 +255,13 @@ class PredictView(APIView):
             X = X.fillna(0)
             # Normalize data    
             X_predict = normalise_data_with_parameters(X, normalisation_parameters)
-            # Assuming X_predict is your DataFrame after normalization and has the shape (12, number_of_features)
-            # features = np.array(X_predict.values)  # Convert DataFrame to numpy array
-            # features = features.reshape(1, 12, -1)  # Reshape to (1, 12, number_of_features)
-            # features_tensor = torch.tensor(features).float().to(device)  # Convert to tensor and send to device
             
-            # Usage example:
-            # Assuming X_predict is your DataFrame with shape (12, number_of_features)
             features = np.array(X_predict.values)  # Convert DataFrame to numpy array
             features_tensor = batch_predict(features).to(device)  # Batch and convert to tensor
             print(features_tensor.shape)
             probability = nn_model(features_tensor)  # Predict
             print(probability)
             prediction = torch.sigmoid(probability) > predict_threshold  # Apply threshold
-
-            # # Batch data in the form of (1, patient, feature rows ordered by time)
-            # print(X_predict)
-            # features = np.array(X_predict.values)
-            # print(features)
-            # features = torch.tensor([features]).float().to(device)
-            # print(features_tensor.shape)
-            # probability = nn_model(features_tensor)
-            # print(probability)
-            # predicted = torch.sigmoid(probability) > predict_threshold
-            # print(predicted)
 
             print(f"LSTM prediction: {prediction}")
             
@@ -317,8 +279,6 @@ class PredictView(APIView):
         serializer = PatientPredictionSerializer(new_prediction)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # except:
-        #     return Response({"error": f"Prediction failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PatientPredictionView(APIView):
