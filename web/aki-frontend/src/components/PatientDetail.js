@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getLabValues } from '../api';
 import { PatientContext } from '../PatientContext';
 import Layout from './Layout';
-import { createPatientFeatureFromFile, predictPatient, getPredictions } from '../api';
+import { createPatientFeatureFromFile, predictPatient, getPredictions, getPatients } from '../api';
 import './PatientDetail.css';
 
 const attributeDisplayNames = {
@@ -46,17 +46,32 @@ const attributeDisplayNames = {
 
 const PatientDetail = ({ user, token }) => {
   const { id } = useParams();
-  const patients = useContext(PatientContext);
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
+  const [patients, setPatients] = useState([]);
   const [predictions, setPredictions] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [labValues, setLabValues] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [labValuesKey, setLabValuesKey] = useState(0);
+  const [predictError, setPredictError] = useState(null);
+  
   const patient = patients.find(patient => patient['id_nr'] == id);
 
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await getPatients(token);
+        setPatients(response.data);
+      } catch (error) {
+        console.error('Failed to fetch patients:', error);
+      }
+    };
+    fetchPatients();
+  }, [token]);
+
+  
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
@@ -87,7 +102,7 @@ const PatientDetail = ({ user, token }) => {
       }
     };
     fetchLabValues();
-  }, [id, token]);
+  }, [id, token, labValuesKey]);
 
   if (!patient) {
     return <Typography variant="h6">Patient not found</Typography>;
@@ -110,7 +125,8 @@ const PatientDetail = ({ user, token }) => {
       try {
         const response = await createPatientFeatureFromFile(id, selectedFile, token);
         alert('Lab values uploaded successfully!');
-        setRefreshKey(refreshKey + 1);
+        setLabValuesKey(prev => prev + 1);  // Trigger a refresh of lab values
+        setRefreshKey(prev => prev + 1);    // Trigger a refresh of predictions
       } catch (error) {
         if (error.response) {
           console.error('Error response:', error.response);
@@ -145,11 +161,17 @@ const PatientDetail = ({ user, token }) => {
 
   const handleNewPrediction = async () => {
     try {
+      setPredictError(null);  // Clear any previous error
       const response = await predictPatient(id, token);
       console.log('New prediction:', response);
       setRefreshKey(oldKey => oldKey + 1);
     } catch (error) {
       console.error('Failed to create new prediction:', error);
+      if (error.response && error.response.data.error === "No lab values found for this patient.") {
+        setPredictError("No lab values found for this patient. Please upload lab values before making a prediction.");
+      } else {
+        setPredictError("Failed to create new prediction. Please try again.");
+      }
     }
   };
 
@@ -344,9 +366,14 @@ const PatientDetail = ({ user, token }) => {
               </Box> */}
             </Box>
             <Box className="cdss-switch">
-              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
-              <Button variant="contained">Prognose-Verlauf anzeigen</Button>
-            </Box>
+          <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
+          <Button variant="contained">Prognose-Verlauf anzeigen</Button>
+        </Box>
+        {predictError && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {predictError}
+          </Typography>
+        )}
           </Grid>
         </Grid>
       </Container>

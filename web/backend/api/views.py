@@ -197,6 +197,9 @@ class PredictView(APIView):
     def post(self, request, patient_id):
         # Ensure the patient exists and belongs to the user making the request
         patient = get_object_or_404(Patient, patient_id=patient_id)
+        # Ensure that there is at least one PatientFeature entry for this patient
+        if not PatientFeature.objects.filter(patient=patient).exists():
+            return Response({"error": "No lab values found for this patient."}, status=status.HTTP_404_NOT_FOUND)
 
         if use_xgb:
             # Get the latest PatientFeature entry for this patient by ordering by a timestamp field
