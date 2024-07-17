@@ -163,27 +163,17 @@ def batch_predict(data):
 class Net(nn.Module):
     def __init__(self, input_size, emb_size, output_size, bi_directional, number_layers, dropout):
         super(Net, self).__init__()
-        self.input_size = input_size
-        self.emb_size = emb_size 
-        self.output_size = output_size
-        self.number_layers = number_layers
-        self.fc1 = nn.Linear(self.input_size, self.emb_size, bias = True) # I can have a few (IV) within this line - documentation        
-        self.fc2 = nn.LSTM(self.emb_size, self.output_size,num_layers=self.number_layers, batch_first = True, bidirectional = bi_directional) 
-        # in bidirectional encoder we have  forward and backward hidden states
-        self.encoding_size = self.output_size * 2 if bi_directional else self.output_size
-        self.combination_layer = nn.Linear(self.encoding_size, self.encoding_size)
-        # Create affine layer to project to the classes 
-        self.projection = nn.Linear(self.encoding_size, self.output_size)
-        #dropout layer for regularizetion of a sequence
-        self.dropout_layer = nn.Dropout(p = dropout)  
-        self.relu = nn.ReLU()
-        
+        self.lstm = nn.LSTM(input_size, emb_size, num_layers=number_layers, 
+                            bidirectional=bi_directional, dropout=dropout, batch_first=True)
+        self.fc = nn.Linear(emb_size * (2 if bi_directional else 1), output_size)
+
     def forward(self, x):
-        h = self.relu(self.fc1(x))
-        h, _ = self.fc2(h) # h, _ : as I have 2outputs (tuple), only take the real output [0]. 
-        #print(type(h)) # Underscore throughs away the rest, _ "I do not care" variable notation in python
-        h = self.relu(self.combination_layer(h))
-        h = self.dropout_layer(h)
-        h = self.projection(h) 
-        return h
-    pass
+        _, (hidden, _) = self.lstm(x)
+        
+        if self.lstm.bidirectional:
+            hidden = torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim=1)
+        else:
+            hidden = hidden[-1]
+        
+        out = self.fc(hidden)
+        return out.squeeze(1)
