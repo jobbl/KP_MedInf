@@ -12,36 +12,36 @@ import './PatientDetail.css';
 
 const attributeDisplayNames = {
   'albumin_mean': 'Albumin <br /> in g/dL',
-  'aniongap_mean': 'Anionenlücke',
-  'bands_mean': 'Granulozyten',
-  'bicarbonate_mean': 'Bicarbonat',
-  'bilirubin_mean': 'Bilirubin',
-  'bun_mean': 'Harnstoff',
-  'calcium': 'Calcium',
-  'chloride_mean': 'Chlorid',
-  'creat': 'Kreatinin',
-  'glucose': 'Glukose',
-  'hematocrit_mean': 'Hämatokrit',
-  'hemoglobin_mean': 'Hämoglobin',
-  'inr_mean': 'INR',
-  'lactate_mean': 'Laktat',
-  'phosphate_mean': 'Phosphat',
-  'platelet_mean': 'Thrombozyten',
-  'potassium_mean': 'Kalium',
-  'pt_mean': 'PT',
-  'ptt_mean': 'PTT',
-  'resprate_mean': 'Atemfrequenz',
-  'sodium_mean': 'Natrium',
-  'uric_acid_mean': 'Harnsäure',
-  'wbc_mean': 'Leukozyten',
-  'blood_pressure': 'DIAST.RR/SYST.RR',
-  'heartrate_mean': 'Herzfrequenz',
-  'spo2_mean': 'SPO2',
-  'meanbp_mean': 'MAP',
-  'tempc_mean': 'Körpertemperatur',
-  'uo_rt_6hr': 'Urinausfuhrrate (6h)',
-  'uo_rt_12hr': 'Urinoutput (12h)',
-  'uo_rt_24hr': 'Urinoutput (24h)'
+  'aniongap_mean': 'Anionenlücke <br /> in mEq/L',
+  'bands_mean': 'Granulozyten <br /> in %',
+  'bicarbonate_mean': 'Bicarbonat <br /> in mEq/L',
+  'bilirubin_mean': 'Bilirubin <br /> in mg/dL',
+  'bun_mean': 'Harnstoff <br /> in ',
+  'calcium': 'Calcium <br /> in mg/dL',
+  'chloride_mean': 'Chlorid in mEq/L',
+  'creat': 'Kreatinin <br /> in mg/dL',
+  'glucose': 'Glukose <br /> in mg/dL',
+  'hematocrit_mean': 'Hämatokrit <br /> in %',
+  'hemoglobin_mean': 'Hämoglobin <br /> in g/dL',
+  'inr_mean': 'INR <br /> in ',
+  'lactate_mean': 'Laktat <br /> in mmol/L',
+  'phosphate_mean': 'Phosphat <br /> in mg/dL',
+  'platelet_mean': 'Thrombozyten <br /> in K/uL',
+  'potassium_mean': 'Kalium <br /> in mEq/L',
+  'pt_mean': 'PT <br /> in s',
+  'ptt_mean': 'PTT <br /> in s',
+  'resprate_mean': 'Atemfrequenz <br /> in ',
+  'sodium_mean': 'Natrium <br /> in mEq/L',
+  'uric_acid_mean': 'Harnsäure <br /> in ',
+  'wbc_mean': 'Leukozyten <br /> in K/uL',
+  'blood_pressure': 'DIAST.RR/SYST.RR <br /> in ',
+  'heartrate_mean': 'Herzfrequenz <br /> in ',
+  'spo2_mean': 'SPO2 <br /> in ',
+  'meanbp_mean': 'MAP <br /> in ',
+  'tempc_mean': 'Körpertemperatur <br /> in °C',
+  'uo_rt_6hr': 'Urinausfuhrrate über 6h <br /> in ',
+  'uo_rt_12hr': 'Urinausfuhrrate über 12h <br /> in ',
+  'uo_rt_24hr': 'Urinausfuhrrate über 24h <br /> in '
 };
 
 const PatientDetail = ({ user, token }) => {
@@ -56,7 +56,7 @@ const PatientDetail = ({ user, token }) => {
   const [error, setError] = useState(null);
   const [labValuesKey, setLabValuesKey] = useState(0);
   const [predictError, setPredictError] = useState(null);
-  
+
   const patient = patients.find(patient => patient['id_nr'] == id);
 
   useEffect(() => {
@@ -71,7 +71,6 @@ const PatientDetail = ({ user, token }) => {
     fetchPatients();
   }, [token]);
 
-  
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
@@ -161,7 +160,7 @@ const PatientDetail = ({ user, token }) => {
 
   const handleNewPrediction = async () => {
     try {
-      setPredictError(null);  // Clear any previous error
+      setPredictError(null);
       const response = await predictPatient(id, token);
       console.log('New prediction:', response);
       setRefreshKey(oldKey => oldKey + 1);
@@ -218,19 +217,19 @@ const PatientDetail = ({ user, token }) => {
             )*/}
           </Grid>
           <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion>
+            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Laborwerte</Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails className="accordion-details">
                 {isLoading ? (
                   <Typography variant="h6">Laborwerte werden geladen...</Typography>
                 ) : error ? (
                   <Typography variant="h6" color="error">{error}</Typography>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer className="accordion-table-container" component={Paper}>
                     <Table>
-                      <TableHead>
+                      <TableHead className="table-header-sticky">
                         <TableRow>
                           <TableCell></TableCell>
                           {labValues.map((labValue, index) => (
@@ -238,7 +237,7 @@ const PatientDetail = ({ user, token }) => {
                           ))}
                         </TableRow>
                       </TableHead>
-                      <TableBody>
+                      <TableBody className="table-first-column-sticky">
                         {labAttributes.map((attr) => (
                           <TableRow key={attr}>
                             <TableCell dangerouslySetInnerHTML={{ __html: attributeDisplayNames[attr] }} />
@@ -261,19 +260,19 @@ const PatientDetail = ({ user, token }) => {
             </Accordion>
           </Grid>
           <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion>
+            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Vitalwerte</Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails className="accordion-details">
                 {isLoading ? (
                   <Typography variant="h6">Vitalwerte werden geladen...</Typography>
                 ) : error ? (
                   <Typography variant="h6" color="error">{error}</Typography>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer className="accordion-table-container" component={Paper}>
                     <Table>
-                      <TableHead>
+                      <TableHead className="table-header-sticky">
                         <TableRow>
                           <TableCell></TableCell>
                           {labValues.map((labValue, index) => (
@@ -281,7 +280,7 @@ const PatientDetail = ({ user, token }) => {
                           ))}
                         </TableRow>
                       </TableHead>
-                      <TableBody>
+                      <TableBody className="table-first-column-sticky">
                         {vitalAttributes.map((attr) => (
                           <TableRow key={attr}>
                             <TableCell>{attributeDisplayNames[attr]}</TableCell>
@@ -304,19 +303,19 @@ const PatientDetail = ({ user, token }) => {
             </Accordion>
           </Grid>
           <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion>
+            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Bilanzierung</Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails className="accordion-details">
                 {isLoading ? (
                   <Typography variant="h6">Bilanzierungswerte werden geladen...</Typography>
                 ) : error ? (
                   <Typography variant="h6" color="error">{error}</Typography>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer className="accordion-table-container" component={Paper}>
                     <Table>
-                      <TableHead>
+                      <TableHead className="table-header-sticky">
                         <TableRow>
                           <TableCell></TableCell>
                           {labValues.map((labValue, index) => (
@@ -324,10 +323,10 @@ const PatientDetail = ({ user, token }) => {
                           ))}
                         </TableRow>
                       </TableHead>
-                      <TableBody>
+                      <TableBody className="table-first-column-sticky">
                         {balancingAttributes.map((attr) => (
                           <TableRow key={attr}>
-                            <TableCell>{attr.replace(/_/g, ' ').toUpperCase()}</TableCell>
+                            <TableCell dangerouslySetInnerHTML={{ __html: attributeDisplayNames[attr] }} />
                             {labValues.map((labValue, index) => (
                               <TableCell key={index}>
                                 {labValue.data[attr] ? labValue.data[attr] : ''}
@@ -366,14 +365,14 @@ const PatientDetail = ({ user, token }) => {
               </Box> */}
             </Box>
             <Box className="cdss-switch">
-          <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
-          <Button variant="contained">Prognose-Verlauf anzeigen</Button>
-        </Box>
-        {predictError && (
-          <Typography color="error" sx={{ mt: 2 }}>
-            {predictError}
-          </Typography>
-        )}
+              <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
+              <Button variant="contained" sx={{ml: 2}}>Prognose-Verlauf anzeigen</Button>
+            </Box>
+            {predictError && (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {predictError}
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </Container>

@@ -102,13 +102,49 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-align: center;
 }
 
 .patient-row {
   height: 30px; 
+  
 }
 
 .values-row .MuiTableCell-root {
   padding: 4px 8px;
   height: 30px;
+  text-align: center;
+}
+
+/* .table-container {
+  overflow: auto;
+  max-height: 500px;  */
+
+
+.table-header-sticky th {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 1; /* Ensure it stays above other table content */
+}
+
+.table-first-column-sticky td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 1; /* Ensure it stays above other table content */
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.accordion-container {
+  width: 100%;
+}
+
+.accordion-details {
+  padding: 0;
+}
+
+.accordion-table-container {
+  width: 100%;
+  overflow: auto;
 }
