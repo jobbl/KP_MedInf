@@ -75,14 +75,6 @@ dataset_detail.drop(['dod', 'admittime', 'dischtime', 'los_hospital', 'ethnicity
                      'hospital_expire_flag', 'hospstay_seq', 'first_hosp_stay', 'intime', 
                      'outtime', 'los_icu', 'icustay_seq', 'first_icu_stay', 'ethnicity_grouped'], axis=1, inplace=True)
 
-for min_col, max_col in column_pairs:
-    try:
-        mean_col = min_col.rsplit('_', 1)[0] + '_mean'
-        dataset_labs[mean_col] = dataset_labs[[min_col, max_col]].mean(axis=1)
-        dataset_labs.drop([min_col, max_col], axis=1, inplace=True)
-    except:
-        pass
-
 dataset_labs_extended = pd.read_csv(DATA_PATH_labs_extended, sep=SEPARATOR)
 dataset_labs_extended = dataset_labs_extended.dropna(subset=['charttime']).dropna(subset=dataset_labs_extended.columns[4:], how='all')
 dataset_labs_extended['charttime'] = pd.to_datetime(dataset_labs_extended['charttime'])
