@@ -262,9 +262,9 @@ class PredictView(APIView):
             features = np.array(X_predict.values)  # Convert DataFrame to numpy array
             features_tensor = batch_predict(features).to(device)  # Batch and convert to tensor
             print(features_tensor.shape)
-            probability = nn_model(features_tensor)  # Predict
+            probability = torch.sigmoid(nn_model(features_tensor))  # Predict
             print(probability)
-            prediction = torch.sigmoid(probability) > predict_threshold  # Apply threshold
+            prediction = probability > predict_threshold  # Apply threshold
 
             print(f"LSTM prediction: {prediction}")
             
