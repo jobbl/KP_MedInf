@@ -216,7 +216,7 @@ const PatientDetail = ({ user, token }) => {
               </Typography>
             )*/}
           </Grid>
-          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+          <Grid item xs={12} sx={{ mb: 2 }}>
             <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Laborwerte</Typography>
@@ -259,7 +259,7 @@ const PatientDetail = ({ user, token }) => {
               </AccordionDetails>
             </Accordion>
           </Grid>
-          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+          <Grid item xs={12} sx={{ mb: 2 }}>
             <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Vitalwerte</Typography>
@@ -302,7 +302,7 @@ const PatientDetail = ({ user, token }) => {
               </AccordionDetails>
             </Accordion>
           </Grid>
-          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+          <Grid item xs={12} sx={{ mb: 2 }}>
             <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Bilanzierung</Typography>
