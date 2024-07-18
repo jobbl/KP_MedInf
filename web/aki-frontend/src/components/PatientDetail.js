@@ -167,7 +167,7 @@ const PatientDetail = ({ user, token }) => {
     } catch (error) {
       console.error('Failed to create new prediction:', error);
       if (error.response && error.response.data.error === "No lab values found for this patient.") {
-        setPredictError("No lab values found for this patient. Please upload lab values before making a prediction.");
+        setPredictError("Für diesen Patienten wurden keine Laborwerte gefunden.");
       } else {
         setPredictError("Failed to create new prediction. Please try again.");
       }
