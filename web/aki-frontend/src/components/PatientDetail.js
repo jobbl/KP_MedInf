@@ -18,7 +18,7 @@ const attributeDisplayNames = {
   'bilirubin_mean': 'Bilirubin <br /> in mg/dL',
   'bun_mean': 'Harnstoff <br /> in ',
   'calcium': 'Calcium <br /> in mg/dL',
-  'chloride_mean': 'Chlorid in mEq/L',
+  'chloride_mean': 'Chlorid <br /> in mEq/L',
   'creat': 'Kreatinin <br /> in mg/dL',
   'glucose': 'Glukose <br /> in mg/dL',
   'hematocrit_mean': 'Hämatokrit <br /> in %',
@@ -39,12 +39,12 @@ const attributeDisplayNames = {
   'spo2_mean': 'SPO2 <br /> in ',
   'meanbp_mean': 'MAP <br /> in ',
   'tempc_mean': 'Körpertemperatur <br /> in °C',
-  'uo_rt_6hr': 'Urinausfuhrrate über 6h <br /> in ',
-  'uo_rt_12hr': 'Urinausfuhrrate über 12h <br /> in ',
-  'uo_rt_24hr': 'Urinausfuhrrate über 24h <br /> in '
+  'uo_rt_6hr': 'Urinausfuhrrate über 6h <br /> in ml/kg/h',
+  'uo_rt_12hr': 'Urinausfuhrrate über 12h <br /> in ml/kg/h',
+  'uo_rt_24hr': 'Urinausfuhrrate über 24h <br /> in ml/kg/h'
 };
 
-const PatientDetail = ({ user, token }) => {
+const PatientDetail = ({ user, token, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -174,8 +174,8 @@ const PatientDetail = ({ user, token }) => {
     }
   };
 
-  return (
-    <Layout user={user}>
+  return ( 
+    <Layout user={user} onLogout={onLogout}>
       <Container className="patient-detail-container" sx={{ mt: 4, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
         <Grid container spacing={3}>
           <Grid item xs={12} className="patient-header" sx={{ mr: 3, alignSelf: 'flex-start' }}>
@@ -184,10 +184,10 @@ const PatientDetail = ({ user, token }) => {
               <Typography variant="body1" sx={{ mr: 6 }}>Geschlecht: {patient.geschlecht}</Typography>
               <Typography variant="body1">ID-Nr: {patient['id_nr']}</Typography>
             </Box>
-            <Box className="patient-header-icons">
+            {/* <Box className="patient-header-icons">
               <IconButton><StarIcon /></IconButton>
               <IconButton><NotificationsIcon /></IconButton>
-            </Box>
+            </Box> */}
           </Grid>
 
           <Grid item xs={12} className="patient-info" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
@@ -216,12 +216,12 @@ const PatientDetail = ({ user, token }) => {
               </Typography>
             )*/}
           </Grid>
-          <Grid item xs={12} sx={{ mb: 2 }}>
-            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
+          <Grid className="accordion-grid" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion item xs={12} className="accordion-container" sx={{ alignSelf: 'flex-start', backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Laborwerte</Typography>
               </AccordionSummary>
-              <AccordionDetails className="accordion-details" sx={{ml: 3, mr: 3}}>
+              <AccordionDetails className="accordion-details" sx={{mr: 3, alignSelf: 'flex-start' }}>
                 {isLoading ? (
                   <Typography variant="h6">Laborwerte werden geladen...</Typography>
                 ) : error ? (
@@ -247,7 +247,7 @@ const PatientDetail = ({ user, token }) => {
                                   ? labValue.data['glucose_mean_x'] || labValue.data['glucose_mean_y']
                                     ? labValue.data['glucose_mean_x'] || labValue.data['glucose_mean_y']
                                     : ''
-                                  : (labValue.data[attr] ? labValue.data[attr] : '')}
+                                  : (labValue.data[attr] ? labValue.data[attr] : '         ')}
                               </TableCell>
                             ))}
                           </TableRow>
@@ -258,9 +258,7 @@ const PatientDetail = ({ user, token }) => {
                 )}
               </AccordionDetails>
             </Accordion>
-          </Grid>
-          <Grid item xs={12} sx={{ mb: 2 }}>
-            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
+            <Accordion item xs={12} className="accordion-container" sx={{ alignSelf: 'flex-start', backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Vitalwerte</Typography>
               </AccordionSummary>
@@ -301,9 +299,7 @@ const PatientDetail = ({ user, token }) => {
                 )}
               </AccordionDetails>
             </Accordion>
-          </Grid>
-          <Grid item xs={12} sx={{ mb: 2 }}>
-            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
+            <Accordion item xs={12} className="accordion-container" sx={{ alignSelf: 'flex-start', backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Bilanzierung</Typography>
               </AccordionSummary>

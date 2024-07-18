@@ -63,9 +63,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/home" element={isLoggedIn ? <Home user={user} token={token} onLogout={handleLogout} /> : <Navigate to="/login" />} />
-          <Route path="/patient/:id" element={isLoggedIn ? <PatientDetail user={user} token={token} /> : <Navigate to="/login" />} />
+          <Route path="/patient/:id" element={isLoggedIn ? <PatientDetail user={user} token={token} onLogout={handleLogout} /> : <Navigate to="/login" />} />
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/patient/:id/labdetails" element={<PatientLabDetail user={user} token={token}  />} />
         </Routes>
       </Router>
     </PatientProvider>
