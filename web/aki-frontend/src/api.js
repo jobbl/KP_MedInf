@@ -100,5 +100,4 @@ export const getPredictions = (patientId) => {
   return api.get(`/patients/${patientId}/predictions/`);
 };
 
-
 export default api;

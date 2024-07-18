@@ -24,7 +24,7 @@ const PatientTable = ({ searchQuery, patients, token }) => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('aki_score');
   const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const rowsPerPage = 7;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const PatientTable = ({ searchQuery, patients, token }) => {
               : null;
             return {
               ...patient,
-              aki_score: latestPrediction ? latestPrediction.prediction.probability : 'N/A'
+              aki_score: latestPrediction ? latestPrediction.prediction.probability : ''
             };
           } catch (error) {
             console.error(`Failed to fetch predictions for patient ${patient.id_nr}:`, error);
@@ -161,7 +161,7 @@ const PatientTable = ({ searchQuery, patients, token }) => {
                   AKI-Score
                 </CustomTableSortLabel>
               </TableCell>
-              <TableCell className="table-header">Aktionen</TableCell>
+              <TableCell className="table-header"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -179,13 +179,13 @@ const PatientTable = ({ searchQuery, patients, token }) => {
                     : patient.aki_score}
                 </TableCell>
                 <TableCell className="patient-actions">
-                  <Tooltip title="Favorit">
+                  {/* <Tooltip title="Favorit">
                     <IconButton><StarIcon /></IconButton>
                   </Tooltip>
                   <Tooltip title="Benachrichtigung">
                     <IconButton><NotificationsIcon /></IconButton>
-                  </Tooltip>
-                  <Tooltip title="Löschen">
+                  </Tooltip> */}
+                  <Tooltip title="Patient löschen">
                     <IconButton onClick={(e) => { e.stopPropagation(); handleDeletePatient(patient.id_nr); }}>
                       <DeleteIcon />
                     </IconButton>

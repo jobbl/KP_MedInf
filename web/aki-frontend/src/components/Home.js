@@ -36,7 +36,7 @@ function Home({ user, token, onLogout }) {
   const handleFileUpload = async () => {
     try {
       const response = await uploadPatients(file, token);
-      alert('File uploaded successfully');
+      alert('Die Patienten wurden hinzugefügt');
       handleClose();
       await fetchPatients();
       setRefreshKey(refreshKey + 1);
@@ -62,7 +62,7 @@ function Home({ user, token, onLogout }) {
         
         <PatientTable searchQuery={searchQuery} patients={patients} token={token} />
         
-        <Button variant="contained" onClick={handleOpen} sx={{ mt: 2, alignSelf: 'flex-start' }}>Neue Patienten hinzufügen</Button>
+        <Button variant="contained" onClick={handleOpen} sx={{ mt: 2, ml:3, alignSelf: 'flex-start' }}>Neue Patienten hinzufügen</Button>
         <Modal open={open} onClose={handleClose}>
           <Box sx={{ ...style, width: 400 }}>
             <Typography variant="h6" component="h2">
