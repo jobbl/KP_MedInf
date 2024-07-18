@@ -216,12 +216,12 @@ const PatientDetail = ({ user, token }) => {
               </Typography>
             )*/}
           </Grid>
-          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
+          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Laborwerte</Typography>
               </AccordionSummary>
-              <AccordionDetails className="accordion-details">
+              <AccordionDetails className="accordion-details" sx={{ml: 3, mr: 3}}>
                 {isLoading ? (
                   <Typography variant="h6">Laborwerte werden geladen...</Typography>
                 ) : error ? (
@@ -259,8 +259,8 @@ const PatientDetail = ({ user, token }) => {
               </AccordionDetails>
             </Accordion>
           </Grid>
-          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
+          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Vitalwerte</Typography>
               </AccordionSummary>
@@ -302,8 +302,8 @@ const PatientDetail = ({ user, token }) => {
               </AccordionDetails>
             </Accordion>
           </Grid>
-          <Grid sx={{ mr: 3, alignSelf: 'flex-start' }}>
-            <Accordion className="accordion-container" sx={{ml: 3, backgroundColor: '#f5f5f5'}}>
+          <Grid sx={{ml: 3,  mr: 3, alignSelf: 'flex-start' }}>
+            <Accordion className="accordion-container" sx={{backgroundColor: '#f5f5f5'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">Bilanzierung</Typography>
               </AccordionSummary>
