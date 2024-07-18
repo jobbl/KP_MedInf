@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-f(velr*(o@rre$s@hay3)w4q$$d+urwn^)@^wen-$rw06ww@z8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -165,6 +166,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Add your React app's URL here
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # Add your React app's URL here
+# ]
+CORS_ALLOW_ALL_ORIGINS = True
