@@ -18,5 +18,6 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - REACT_APP_API_URL=http://backend:8000/api
     depends_on:
       - backend
