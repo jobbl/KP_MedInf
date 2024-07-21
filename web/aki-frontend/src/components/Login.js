@@ -37,7 +37,7 @@ const Login = ({ onLogin, onRegister }) => {
       onLogin(response.data.user, response.data.token);
       navigate('/home');
     } catch (error) {
-      setError('Login failed. Please check your credentials.');
+      setError('Die Anmeldung ist fehlgeschlagen. Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut.');
     }
   };
 
@@ -45,9 +45,9 @@ const Login = ({ onLogin, onRegister }) => {
     try {
       await registerUser(newUsername, newPassword);
       setOpen(false);
-      alert('Registration successful. Please log in.');
+      alert('Die Registrierung war erfolgreich! Sie können sich jetzt mit Ihren Daten anmelden.');
     } catch (error) {
-      alert('Registration failed.');
+      alert('Die Registrierung ist fehlgeschlagen.');
     }
   };
 

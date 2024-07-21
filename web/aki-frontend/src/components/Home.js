@@ -10,17 +10,21 @@ function Home({ user, token, onLogout }) {
   const [file, setFile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchPatients = async () => {
     try {
+      setIsLoading(true);
       const response = await getPatients(token);
       setPatients(response.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         onLogout();
       } else {
-        alert('Failed to fetch patients');
+        alert('Die Patienten konnten nicht geladen werden.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -36,20 +40,20 @@ function Home({ user, token, onLogout }) {
   const handleFileUpload = async () => {
     try {
       const response = await uploadPatients(file, token);
-      alert('Die Patienten wurden hinzugefügt');
+      alert('Die Patienten wurden hinzugefügt!');
       handleClose();
       await fetchPatients();
       setRefreshKey(refreshKey + 1);
     } catch (error) {
       if (error.response) {
         console.error('Error response:', error.response);
-        alert(`File upload failed: ${error.response.data.error}`);
+        alert(`Beim Hinzufügen der Patienten ist ein Fehler aufgetreten: ${error.response.data.error}`);
       } else if (error.request) {
         console.error('Error request:', error.request);
-        alert('File upload failed: No response from server');
+        alert('Beim Hinzufügen der Patienten ist ein Fehler aufgetreten.');
       } else {
         console.error('Error message:', error.message);
-        alert(`File upload failed: ${error.message}`);
+        alert(`Beim Hinzufügen der Patienten ist ein Fehler aufgetreten: ${error.message}`);
       }
     }
   };
