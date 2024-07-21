@@ -1,10 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PatientContext } from '../PatientContext';
 import './PatientTable.css';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Typography, IconButton, Tooltip, TablePagination } from '@mui/material';
-import StarIcon from '@mui/icons-material/Star';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import { deletePatient, getPredictions } from '../api'; 
@@ -48,7 +45,7 @@ const PatientTable = ({ searchQuery, patients, token }) => {
               aki_score: latestPrediction ? latestPrediction.prediction.probability : ''
             };
           } catch (error) {
-            console.error(`Failed to fetch predictions for patient ${patient.id_nr}:`, error);
+            console.error(`Beim Laden der Prognose für den Patienten mit ID-Nr ${patient.id_nr} ist ein Fehler aufgetreten:`, error);
             return { ...patient, aki_score: 'Error' };
           }
         })
@@ -95,7 +92,7 @@ const PatientTable = ({ searchQuery, patients, token }) => {
       await deletePatient(id);
       setPatientList(prevList => prevList.filter(patient => patient.id_nr !== id));
     } catch (error) {
-      console.error('Failed to delete patient:', error);
+      console.error('Beim Löschen des Patienten ist ein Fehler aufgetreten:', error);
     }
   };
 
@@ -179,12 +176,6 @@ const PatientTable = ({ searchQuery, patients, token }) => {
                     : patient.aki_score}
                 </TableCell>
                 <TableCell className="patient-actions">
-                  {/* <Tooltip title="Favorit">
-                    <IconButton><StarIcon /></IconButton>
-                  </Tooltip>
-                  <Tooltip title="Benachrichtigung">
-                    <IconButton><NotificationsIcon /></IconButton>
-                  </Tooltip> */}
                   <Tooltip title="Patient löschen">
                     <IconButton onClick={(e) => { e.stopPropagation(); handleDeletePatient(patient.id_nr); }}>
                       <DeleteIcon />

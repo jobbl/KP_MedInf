@@ -45,7 +45,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await logoutUser(); // If you have a logout API call
+      await logoutUser();
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {

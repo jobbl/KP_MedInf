@@ -190,10 +190,6 @@ const PatientDetail = ({ user, token, onLogout }) => {
               <Typography variant="body1" sx={{ mr: 6 }}>Geschlecht: {patient.geschlecht}</Typography>
               <Typography variant="body1">ID-Nr: {patient['id_nr']}</Typography>
             </Box>
-            {/* <Box className="patient-header-icons">
-              <IconButton><StarIcon /></IconButton>
-              <IconButton><NotificationsIcon /></IconButton>
-            </Box> */}
           </Grid>
 
           <Grid item xs={12} className="patient-info" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
@@ -203,7 +199,6 @@ const PatientDetail = ({ user, token, onLogout }) => {
               <Typography variant="body1">Diagnose: {patient.diagnose}</Typography>
             </Box>
             <Box className="labs-buttons">
-              {/* <Button variant="contained" onClick={handleLabValuesClick}>alle Laborwerte anzeigen</Button> */}
               <input
                 accept=".csv"
                 style={{ display: 'none' }}
@@ -215,11 +210,6 @@ const PatientDetail = ({ user, token, onLogout }) => {
                 Neue Laborwerte hinzufügen
               </Button>
             </Box>
-            {/*file && (
-              <Typography variant="body2" style={{ marginTop: '10px' }}>
-                Selected file: {file.name}
-              </Typography>
-            )*/}
           </Grid>
 
           <Grid className="accordion-grid" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
@@ -359,11 +349,8 @@ const PatientDetail = ({ user, token, onLogout }) => {
           <Grid item xs={12} className="aki-section" sx={{ mb: 2, ml: 3, mr: 3, alignSelf: 'flex-start' }}>
             <Box className="aki-section-header">
               <Typography variant="h5">Aktuelle AKI-Prognose</Typography>
-              {/* <Switch />
-              <Typography>CDSS</Typography> */}
             </Box>
             <Box className="prognosis-overview">
-              {/* <Typography variant="body2">nächste automatische Prognose um 18:00 Uhr</Typography> */}
               {predictions.length === 0 ? (
                 <Typography variant="body2" sx={{pb: 3}}>Für diesen Patienten liegen noch keine Prognosen vor.</Typography>
               ) : (
@@ -377,15 +364,9 @@ const PatientDetail = ({ user, token, onLogout }) => {
               )}
             </Box>
             <Box className="comments-section">
-              {/* <Typography variant="h6">Kommentare</Typography>
-              <Box className="comments-list">
-                <Typography variant="body2">Letzte Prognose nachvollziehbar. Empfehle präventive Maßnahmen. <br /> Professor Lebergut, 25.04.2024, 15:34</Typography>
-                <Typography variant="body2">Was halten sie vom Prognoseverlauf? <br /> Dr Dietrich, 24.04.2024, 11:46</Typography>
-              </Box> */}
             </Box>
             <Box className="cdss-switch">
               <Button variant="contained" onClick={handleNewPrediction}>neue Prognose starten</Button>
-              {/* <Button variant="contained" sx={{ml: 2}}>Prognose-Verlauf anzeigen</Button> */}
             </Box>
             {predictError && (
               <Typography color="error" sx={{ mt: 2 }}>
