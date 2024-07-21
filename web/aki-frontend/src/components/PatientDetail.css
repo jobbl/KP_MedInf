@@ -22,7 +22,8 @@
   padding: 1rem;
   padding-left: 0%;
   padding-right: 0%;
-  margin-bottom: 1.5rem;
+  padding-bottom: 0%;
+  margin-bottom: 0%;
   margin-left: 0px;
   border-radius: 8px;
   overflow: auto;
@@ -128,6 +129,7 @@
 
 .accordion-details {
   padding: 0;
+  padding-bottom: 1rem;
 }
 
 .accordion-table-container {
@@ -141,4 +143,9 @@
   flex-direction: column;
   gap: 1rem;
   align-items: flex-end;
+}
+
+.Mui-disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }
