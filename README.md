@@ -14,7 +14,7 @@ Es können folgende Funktionalitäten des Prototyps getestet werden:
 ### 2. Einloggen mit den neuen Benutzerdaten
 ### 3. Hinzufügen von neuen Patienten in einer CSV-Datei 
 Dies kann mit der Test-Datei "patient_upload_test.csv" getestet werden. Sie beinhaltet die Daten einer neuen Patientin namens "Anna Wolf". 
-## 4. Sortieren der Patiententabelle über die Pfeile in der Kopfzeile der Tabelle 
+### 4. Sortieren der Patiententabelle über die Pfeile in der Kopfzeile der Tabelle 
 ### 5. Suchen nach einzelnen Patientennamen 
 ### 6. Detailansicht eines Patienten über die jeweilige Zeile in der Tabelle
 ### 7. Hochladen von Laborwerten:
