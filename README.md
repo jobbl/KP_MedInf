@@ -27,8 +27,11 @@ Dies kann mit der Test-Datei "patient_upload_test.csv" getestet werden. Sie bein
 ### 6. Detailansicht eines Patienten über die jeweilige Zeile in der Tabelle
 ### 7. Hochladen von Laborwerten:
 Achtung: Bitte **nur** für die neu hinzugefügte Patientin "Anna Wolf" Laborwerte hinzufügen!
-Dies kann mit der Test-Datei "" getestet werden.
+Dies kann zunächst mit der Test-Datei "test_labs_1" getestet werden. 
 ### 8. Starten einer neuen AKI-Prognose für einen Patienten
+Die Prognose gibt an, wie hoch das Risiko des Patienten ist, in den kommenden 48h eine AKI zu entwickeln. Die Berechnung dieses Werts geschieht auf Basis der vorliegenden Labor-, Vital- und Bilanzierungswerte. 
+<br />
+Der Vorgang des Hochladens später datierter Werte kann mit der Test-Datei "test_labs_2" getestet werden. Bei erneutem Starten der Prognose werden die neuen Werte berücksichtigt.
 ### 9. Löschen von Patienten aus der Patiententabelle
 Achtung: Bitte **nur** die neu hinzugefügte Patientin "Anna Wolf" löschen!
 ### 10. Abmelden vom System
