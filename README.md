@@ -8,7 +8,7 @@ Publish via tunnel:
 Deploy in docker:
 - docker-compose up in /web
 
-Change for local deploy:
+Change for dockerless deploy:
 - change "proxy": "http://backend:8000" for "proxy": "http://localhost:8000" in web/aki-frontend/package.json
 
 
