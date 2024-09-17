@@ -4,3 +4,4 @@ notebooks/data
 runs
 .venv
 notes.md
+notebooks/data_extraction_old.ipynb
